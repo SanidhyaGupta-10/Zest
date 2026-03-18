@@ -1,3 +1,4 @@
+import { geminiProvider } from "./gemini.provider";
 import { groqProvider } from "./groq.provider";
 import { openaiProvider } from "./openai.provider";
 
@@ -17,6 +18,14 @@ export const generateQuestionsWithFallback = async (topic: string) => {
     return await openaiProvider.generateQuestions(topic);
   } catch (err) {
     console.error("OpenAI failed:", err);
+  }
+
+  // 3️⃣ Again Fallback Option is → Gemini
+  try {
+    console.log("Using Gemini...");
+    return await geminiProvider.generateQuestions(topic);
+  } catch (err) {
+    console.error("Gemini failed:", err);
   }
 
   // 3️⃣ Final fallback
