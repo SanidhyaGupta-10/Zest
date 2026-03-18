@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { generateQuestionsService } from "./ai.service";
+import { questionQueue } from "../../queues/question.queue";
 
 export const generateQuestions = async (req: Request, res: Response) => {
   try {
@@ -7,19 +7,22 @@ export const generateQuestions = async (req: Request, res: Response) => {
     // Checking if topic is provided
     if (!topic) {
       return res.status(400).json({
-         message:"Topic is required" 
+        message: "Topic is required"
       });
     }
 
-    // Calling the service
-    const result = await generateQuestionsService(topic);
+    // Adding job to queue
+    const job = await questionQueue.add("generate", { topic });
 
-    res.json(result);
+    return res.json({
+      message: "Job added to queue",
+      jobId: job.id,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ 
-        success: false,
-        message: "Something went wrong" 
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong"
     });
   }
 };
