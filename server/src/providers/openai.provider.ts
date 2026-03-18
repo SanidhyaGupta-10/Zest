@@ -6,7 +6,8 @@ const openai = new OpenAI({
   apiKey: apiKey,
 });
 
-export const generateQuestionsFromOpenAI = async (topic: string) => {
+export const openaiProvider = {
+  generateQuestions: async (topic: string) => {
   const prompt = `Generate 5 study questions about ${topic}. Return JSON array.`;
 
   const response = await openai.chat.completions.create({
@@ -21,4 +22,5 @@ export const generateQuestionsFromOpenAI = async (topic: string) => {
   } catch {
     return [content];
   }
+ }
 };
