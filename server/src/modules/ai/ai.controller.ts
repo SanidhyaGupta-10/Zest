@@ -56,11 +56,15 @@ export const summarizeController = async (req: AuthenticatedRequest, res: Respon
     const userId = req.auth?.userId;
 
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(401).json({ 
+        message: "Unauthorized" 
+      });
     }
 
     if (!content) {
-      return res.status(400).json({ message: "Content is required" });
+      return res.status(400).json({ 
+        message: "Content is required" 
+      });
     }
 
     const job = await summaryQueue.add("summarize", {
