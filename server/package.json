@@ -15,8 +15,10 @@
   "dependencies": {
     "@clerk/express": "^2.0.5",
     "@google/generative-ai": "^0.24.1",
+    "@types/cors": "^2.8.19",
     "@types/dotenv": "^6.1.1",
     "bullmq": "^5.71.0",
+    "cors": "^2.8.6",
     "express": "^5.2.1",
     "groq-sdk": "^1.1.1",
     "ioredis": "^5.10.0",
