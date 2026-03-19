@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { questionQueue, questionQueueEvents } from "../../queues/question.queue";
+import { questionQueue } from "../../queues/question.queue";
 
 export const generateQuestions = async (req: Request, res: Response) => {
   try {
@@ -14,12 +14,11 @@ export const generateQuestions = async (req: Request, res: Response) => {
     // Adding job to queue
     const job = await questionQueue.add("generate", { topic });
 
-    // Wait for worker to finish and return the result
-    const result = await job.waitUntilFinished(questionQueueEvents);
-
     return res.json({
       success: true,
-      data: result,
+      data: job,
+      jobId: job.id,
+      message: "Job queued successfully",
     });
   } catch (error) {
     console.error(error);
