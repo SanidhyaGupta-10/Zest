@@ -1,26 +1,15 @@
 import OpenAI from "openai";
 
-const apiKey = process.env.OPENAI_API_KEY;
-
-const openai = new OpenAI({
-  apiKey: apiKey,
-});
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 
 export const openaiProvider = {
-  generateQuestions: async (topic: string) => {
-  const prompt = `Generate 5 study questions about ${topic}. Return JSON array.`;
+  generate: async (fullPrompt: string) => {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini", // Optimized for speed and cost
+      messages: [{ role: "user", content: fullPrompt }],
+      response_format: { type: "json_object" },
+    });
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{ role: "user", content: prompt }],
-  });
-
-  const content = response.choices[0]?.message?.content || "[]";
-
-  try {
-    return JSON.parse(content);
-  } catch {
-    return [content];
-  }
- }
+    return response.choices[0]?.message?.content || "";
+  },
 };
