@@ -12,11 +12,16 @@ export const generateQuestions = async (req: Request, res: Response) => {
     }
 
     // Adding job to queue
-    const job = await questionQueue.add("generate", { topic });
+    const job = await questionQueue.add("generate", { topic }, {
+      attempts: 3,
+      backoff: {
+        type: "exponential",
+        delay: 1000,
+      },
+    });
 
     return res.json({
       success: true,
-      data: job,
       jobId: job.id,
       message: "Job queued successfully",
     });
