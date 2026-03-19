@@ -1,9 +1,20 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { questionQueue } from "../../queues/question.queue";
+import { AuthenticatedRequest } from "../Request.type";
 
-export const generateQuestions = async (req: Request, res: Response) => {
+
+export const generateQuestions = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { topic, userId } = req.body;
+    const { topic } = req.body;
+    // Getting user ID from the request
+    // but we can do also :-  const userId = (req as any).auth?.userId;
+    // but below is the best way to get user ID from the request
+    const userId = req.auth?.userId;
+
+    // Checking if user is authenticated
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
     // Checking if topic is provided
     if (!topic) {
       return res.status(400).json({
@@ -12,8 +23,8 @@ export const generateQuestions = async (req: Request, res: Response) => {
     }
 
     // Adding job to queue
-    const job = await questionQueue.add("generate", { 
-      topic, 
+    const job = await questionQueue.add("generate", {
+      topic,
       userId
     }, {
       attempts: 3,

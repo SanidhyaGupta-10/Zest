@@ -46,6 +46,7 @@ new Worker<JobData>(
       data: {
         topic,
         questions,
+        userId,
       },
     });
 
