@@ -1,33 +1,16 @@
 import Groq from "groq-sdk";
 
-const apiKey = process.env.GROQ_API_KEY! 
-
-const groq = new Groq({ apiKey: apiKey });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
 
 export const groqProvider = {
-    generateQuestions: async (topic: string) => {
-    // logic is here mean 
-    // training ai what to do for User in more efficient way
-    const prompt = `
-        Generate 5 high-quality study questions about: ${topic}.
-        Return ONLY a JSON array of strings.`;
-
+  generate: async (fullPrompt: string) => {
     const response = await groq.chat.completions.create({
-        model: "openai/gpt-oss-20b",
-        messages: [
-            {
-                role: "user",
-                content: prompt,
-            },
-        ],
+      model: "llama-3.3-70b-versatile", // Fixed: Uses current high-speed model
+      messages: [{ role: "user", content: fullPrompt }],
+      // Use json_object only if your prompt explicitly asks for JSON
+      response_format: { type: "json_object" }, 
     });
 
-    const content = response.choices[0]?.message?.content || "[]";
-
-    try {
-        return JSON.parse(content);
-    } catch {
-        return [content]; // fallback
-    };
-  }
+    return response.choices[0]?.message?.content || "";
+  },
 };
