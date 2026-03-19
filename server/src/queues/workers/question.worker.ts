@@ -7,12 +7,13 @@ import { prisma } from "../../config/db";
 
 type JobData = {
   topic: string;
+  userId: string;
 };
 
 new Worker<JobData>(
   "question-generation",
   async (job: Job<JobData>) => {
-    const { topic } = job.data;
+    const { topic, userId } = job.data;
 
     console.log("🚀 Processing job:", topic);
 

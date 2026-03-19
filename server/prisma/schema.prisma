@@ -11,6 +11,8 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   name      String?
+  imageUrl  String?
+  userId    String   @unique // For questions
   createdAt DateTime @default(now())
 }
 
