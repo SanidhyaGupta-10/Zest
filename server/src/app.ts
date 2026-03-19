@@ -1,6 +1,7 @@
 import express from "express";
 import aiRoutes from './modules/ai/ai.routes'
 import jobRoutes from './modules/jobs/jobs.routes'
+import userRoutes from './modules/user/user.routes'
 import { clerkMiddleware } from "@clerk/express";
 
 const app = express();
@@ -14,5 +15,6 @@ app.get("/", (req, res) => {
 
 app.use('/api/ai', aiRoutes)
 app.use('/api/jobs', jobRoutes)
+app.use('/api/users', userRoutes)
 
 export default app;

@@ -8,20 +8,36 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
+  id        String   @id           // ✅ Clerk userId
   email     String   @unique
   name      String?
-  createdAt DateTime @default(now())
   imageUrl  String?
-  userId    String   @unique
+  createdAt DateTime @default(now())
+
+  documents Document[]
+  questions Question[]
+  summaries Summary[]
+  notes     Note[]
+}
+
+model Document {
+  id        String   @id @default(uuid())
+  userId    String
+  content   String
+  embedding Unsupported("vector")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Question {
   id        String   @id @default(cuid())
   topic     String
   questions Json
-  userId    String?
+  userId    String
   createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Summary {
@@ -30,6 +46,8 @@ model Summary {
   result    String
   userId    String
   createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Note {
@@ -38,4 +56,6 @@ model Note {
   notes     String
   userId    String
   createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
