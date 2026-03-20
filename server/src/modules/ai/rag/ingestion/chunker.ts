@@ -5,8 +5,8 @@
 
 export const chunkText = (
   text: string,
-  chunkSize = 500,
-  overlap = 100
+  chunkSize = 300,
+  overlap = 80
 ): string[] => {
   const chunks: string[] = [];
 

@@ -6,6 +6,7 @@ import { clerkMiddleware } from "@clerk/express";
 import cors from 'cors'
 import { ingestDocument } from "./modules/ai/rag/ingestion/ingestion.service";
 import { retrieveContext } from "./modules/ai/rag/retrieval/retrieval.service";
+import { generateRAGResponse } from "./modules/ai/rag/rag.service";
 
 const app = express();
 
@@ -38,6 +39,14 @@ app.post("/api/test-retrieve", async (req, res) => {
   const context = await retrieveContext({ userId, query });
 
   res.json({ context });
+});
+
+app.post("/api/test-rag", async (req, res) => {
+  const { userId, query } = req.body;
+
+  const result = await generateRAGResponse({ userId, query });
+
+  res.json(result);
 });
 
 app.use('/api/ai', aiRoutes)
