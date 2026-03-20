@@ -42,10 +42,12 @@ export const searchSimilar = async ({
   userId,
   embedding,
   limit = 5,
+  metadata
 }: {
   userId: string;
   embedding: number[];
   limit?: number;
+  metadata?: Record<string, any>;
 }) => {
   const vector = `[${embedding.join(",")}]`;
 
@@ -62,7 +64,8 @@ export const searchSimilar = async ({
     `,
     vector,
     userId,
-    limit
+    limit,
+    JSON.stringify(metadata || {})
   );
 
   return results;

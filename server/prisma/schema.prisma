@@ -25,6 +25,7 @@ model Document {
   userId    String
   content   String
   embedding Unsupported("vector")
+  metadata  Json?
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
