@@ -1,10 +1,31 @@
 import { genAI } from "../../../../providers/gemini.provider";
 
-const model = genAI.getGenerativeModel({ model: "text-embedding-004" }); // or gemini-embedding-001
-
 export const generateEmbedding = async (text: string): Promise<number[]> => {
-  if (!text) return Array(1536).fill(0);
+  // Set to 1536 to match your requirement (standard for many vector DBs)
+  const DIMENSIONS = 1536; 
 
-  const result = await model.embedContent(text);
-  return result.embedding.values; // Returns the actual semantic vector
+  if (!text || text.trim().length === 0) return Array(DIMENSIONS).fill(0);
+
+  try {
+    const result = await genAI.models.embedContent({
+      model: "gemini-embedding-001",
+      contents: [{ parts: [{ text }] }],
+      config: { 
+        // This tells Gemini to truncate the 3072 vector to exactly 1536
+        outputDimensionality: DIMENSIONS 
+      },
+    });
+
+    const values = result.embeddings?.[0]?.values;
+    
+    if (!values) {
+      throw new Error("No embedding values returned from Gemini API");
+    }
+
+    return values;
+  } catch (error) {
+    console.error("Error generating embedding:", error);
+    // Return a zero-vector of the correct size to prevent DB schema errors
+    return Array(DIMENSIONS).fill(0);
+  }
 };
