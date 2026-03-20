@@ -3,9 +3,9 @@ import Bytez from "bytez.js";
 // Initialize with your key
 const key = process.env.BYTEZ_API_KEY!;
 const sdk = new Bytez(key);
-const model = sdk.model("openai/gpt-4o-mini");
+const model = sdk.model("openai/gpt-5-mini");
 
-export const openaiProvider = {
+export const bytezProvider = {
   generate: async (fullPrompt: string) => {
     // Standard chat array for Bytez
     const { error, output } = await model.run([
