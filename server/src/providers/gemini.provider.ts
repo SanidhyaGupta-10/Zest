@@ -1,14 +1,20 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const apiKey = process.env.GEMINI_API_KEY;
+
+if (!apiKey) {
+  throw new Error("GEMINI_API_KEY is not defined");
+}
+
+export const genAI = new GoogleGenAI({ apiKey });
 
 export const geminiProvider = {
   generate: async (fullPrompt: string) => {
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash" // Best for low-latency tasks
+    const result = await genAI.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: [{ role: "user", parts: [{ text: fullPrompt }] }]
     });
 
-    const result = await model.generateContent(fullPrompt);
-    return result.response.text();
+    return result?.text;
   },
 };
