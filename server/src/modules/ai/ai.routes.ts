@@ -1,17 +1,25 @@
 import express from 'express';
-import { generateQuestions, notesController, summarizeController } from './ai.controller';
+import { chatController, generateQuestions, notesController, summarizeController } from './ai.controller';
 import { requireAuth } from '@clerk/express';
 import { rateLimit } from '../../middleware/rateLimit';
 
 const router = express.Router();
 
+/**
+ * Chat / Ask AI (Hybrid RAG)
+ * POST /api/ai/chat
+ */
+router.post(
+    "/chat", 
+    requireAuth(), 
+    rateLimit,
+    chatController
+);
+
 /** 
  *  Generate Questions
  *  POST /api/ai/generate-questions
- *  PROTECTED
- *  RATE LIMITED
  */
-
 router.post(
     "/generate-questions", 
     requireAuth(), 
@@ -22,10 +30,7 @@ router.post(
 /**
  *  Summarize
  *  POST /api/ai/summarize
- *  PROTECTED
- *  RATE LIMITED
  */
-
 router.post(
     "/summarize", 
     requireAuth(), 
@@ -36,8 +41,6 @@ router.post(
 /**
  *  Notes
  *  POST /api/ai/notes
- *  PROTECTED
- *  RATE LIMITED
 */
 router.post(
     "/notes", 

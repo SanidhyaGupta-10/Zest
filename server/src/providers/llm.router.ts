@@ -4,50 +4,56 @@ import { geminiProvider } from "./gemini.provider";
 import { groqProvider } from "./groq.provider";
 import { openaiProvider } from "./openai.provider";
 
-export const generateFromLLM = async (topic: string) => {
-  // 1️⃣ will GROQ
-  // if it fails then it go to OpenAI
+/**
+ * General-purpose LLM caller with multi-provider fallback
+ * Ensures responses are under 2-3 seconds by prioritizing fast models (Groq)
+ */
+export const generateWithFallback = async (fullPrompt: string) => {
+  // 1️⃣ HIGH SPEED: Groq (Llama 3.3 70B)
   try {
-    console.log("Using Groq...");
-    return await groqProvider.generate(topic);
+    console.log("Using Groq (Llama 3.3)...");
+    return await groqProvider.generate(fullPrompt);
   } catch (err) {
     console.error("Groq failed:", err);
   }
 
-  // 2️⃣ Again Fallback Option is → Gemini
+  // 2️⃣ RELIABLE: Gemini
   try {
     console.log("Using Gemini...");
-    return await geminiProvider.generate(topic);
+    return await geminiProvider.generate(fullPrompt);
   } catch (err) {
     console.error("Gemini failed:", err);
   }
 
-  // 3️⃣ Again Fallback Option is → DeepSeek
-  try{
-    console.log('Using DeepSeek..');
-    return await deepseekProvider.generate(topic);
+  // 3️⃣ ALTERNATIVE: DeepSeek
+  try {
+    console.log('Using DeepSeek...');
+    return await deepseekProvider.generate(fullPrompt);
   } catch (err) {
     console.error('DeepSeek failed:', err);
   }
 
-  // 4️⃣ Again Fallback Option is → Bytez
+  // 4️⃣ ALTERNATIVE: Bytez
   try {
-    console.log('Using Bytez....');
-    return await bytezProvider.generate(topic);
+    console.log('Using Bytez...');
+    return await bytezProvider.generate(fullPrompt);
   } catch (error) {
     console.error('Bytez failed:', error);
   }
-  
-  // Final fallback
+
+  // 5️⃣ LAST RESORT: OpenAI (Costly/Slower fallback)
   try {
     console.log("Using OpenAI...");
-    return await openaiProvider.generate(topic);
+    return await openaiProvider.generate(fullPrompt);
   } catch (err) {
     console.error("OpenAI failed:", err);
   }
-  // 5️⃣ Final fallback
-  return [
-    `What is ${topic}?`,
-    `Explain ${topic}.`,
-  ];
+
+  // Final static fallback - never return empty
+  console.warn("All LLM providers failed. Using static fallback.");
+  return "I'm sorry, I'm currently unable to process this request due to technical difficulties. Please try a simpler query or try again in a few minutes.";
 };
+
+// Aliases for compatibility with different modules
+export const generateFromLLM = generateWithFallback;
+export const generateQuestionsWithFallback = generateWithFallback;

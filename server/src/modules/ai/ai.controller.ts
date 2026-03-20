@@ -3,6 +3,39 @@ import { questionQueue } from "../../queues/question.queue";
 import { AuthenticatedRequest } from "../Request.type";
 import { summaryQueue } from "../../queues/summary.queue";
 import { notesQueue } from "../../queues/notes.queue";
+import { generateRAGResponse } from "./rag/rag.service";
+
+
+export const chatController = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { query } = req.body;
+    const userId = req.auth?.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!query) {
+      return res.status(400).json({ message: "Query is required" });
+    }
+
+    // This uses the hybrid RAG logic (RAG with direct LLM fallback)
+    const result = await generateRAGResponse({
+       userId, query 
+      });
+
+    return res.json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    console.error("Chat Controller Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong during processing",
+    });
+  }
+};
 
 
 export const generateQuestions = async (req: AuthenticatedRequest, res: Response) => {
