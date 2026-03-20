@@ -1,12 +1,12 @@
 import { useAuth, useUser } from "@clerk/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
-import { syncUserReq } from "../lib/api";
+import syncUserReq from "../lib/api";
 
 export const useUserSync = () => {
   const { isLoaded, isSignedIn, getToken } = useAuth();
-  const { user } = useUser();
-  const hasSynced = useRef(false);
+    const { user } = useUser();
+    const hasSynced = useRef(false);
 
   const mutation = useMutation({
     mutationFn: async () => {
