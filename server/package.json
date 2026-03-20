@@ -18,6 +18,8 @@
     "@types/cors": "^2.8.19",
     "@types/dotenv": "^6.1.1",
     "bullmq": "^5.71.0",
+    "bytez": "^0.7.0",
+    "bytez.js": "^3.0.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "groq-sdk": "^1.1.1",

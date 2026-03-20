@@ -1,10 +1,10 @@
+import { genAI } from "../../../../providers/gemini.provider";
+
+const model = genAI.getGenerativeModel({ model: "text-embedding-004" }); // or gemini-embedding-001
+
 export const generateEmbedding = async (text: string): Promise<number[]> => {
   if (!text) return Array(1536).fill(0);
-  // deterministic fake embedding (important)
-  const vector = Array.from({ length: 1536 }, (_, i) => {
-    const charCode = text.charCodeAt(i % text.length) || 0;
-    return (charCode % 100) / 100; // normalize
-  });
 
-  return vector;
+  const result = await model.embedContent(text);
+  return result.embedding.values; // Returns the actual semantic vector
 };
