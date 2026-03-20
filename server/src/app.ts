@@ -51,6 +51,6 @@ app.post("/api/test-rag", async (req, res) => {
 
 app.use('/api/ai', aiRoutes)
 app.use('/api/jobs', jobRoutes)
-app.use('/api/users', userRoutes)
+app.use('/api/auth', userRoutes)
 
 export default app;

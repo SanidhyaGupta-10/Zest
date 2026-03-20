@@ -2,93 +2,71 @@
 
 import Link from "next/link";
 import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
-import { UserIcon, Loader2 } from "lucide-react";
+import { Loader2, Menu } from "lucide-react";
 import { useUserSync } from "@/hooks/useUserSync";
 
-function Navbar() {
+function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { isLoaded, isSignedIn } = useAuth();
-  
-  // This hook runs automatically when isSignedIn is true
   const { isPending: isSyncing } = useUserSync();
 
-  // 1. Loading State (Skeleton)
-  if (!isLoaded) {
-    return (
-      <div className="navbar bg-base-300 border-b border-base-content/10">
-        <div className="max-w-5xl mx-auto w-full px-4 flex justify-between items-center">
-          <div className="flex-1">
-            <div className="h-8 w-20 bg-base-200 rounded animate-pulse" />
-          </div>
-          <div className="flex gap-2 items-center">
-            <div className="h-8 w-16 bg-base-200 rounded animate-pulse" />
-            <div className="h-8 w-24 bg-base-200 rounded animate-pulse" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <nav className="navbar bg-base-300 border-b border-base-content/10 sticky top-0 z-50">
-      <div className="max-w-5xl mx-auto w-full px-4 flex justify-between items-center">
-        {/* Logo Section */}
-        <div className="flex-1">
-          <Link href="/" className="btn btn-ghost px-0 hover:bg-transparent gap-2">
-            <span className="text-xl font-black font-mono uppercase tracking-tighter text-primary">
-              Zest
-            </span>
-          </Link>
-        </div>
+    <header className="sticky top-0 z-30 w-full">
+      <div className="mx-auto w-full px-4 py-4">
+        <div className="glass-card flex h-14 items-center justify-between px-6 border-white/5 bg-white/[0.02]">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={onMenuClick}
+              className="md:hidden p-2 rounded-xl bg-white/5 border border-white/5 text-white/50 hover:text-white transition-colors"
+            >
+              <Menu className="size-5" />
+            </button>
+            <Link href="/" className="flex items-center gap-2 group">
+              <span className="text-xl font-black tracking-tighter bg-linear-to-r from-white via-white to-white/40 bg-clip-text text-transparent group-hover:to-white transition-all">
+                ZEST
+              </span>
+            </Link>
+          </div>
 
-        {/* Auth Section */}
-        <div className="flex gap-3 items-center">
-          {isSignedIn ? (
-            <>
-              {/* Syncing Indicator: Shows a tiny spinner while Express saves the user */}
-              {isSyncing && (
-                <div className="flex items-center gap-2 text-xs text-base-content/50 italic animate-pulse">
-                  <Loader2 className="size-3 animate-spin" />
-                  <span>Syncing...</span>
-                </div>
-              )}
-
-              <Link 
-                href="/profile" 
-                className={`btn btn-ghost btn-sm gap-2 ${isSyncing ? 'btn-disabled opacity-50' : ''}`}
-              >
-                <UserIcon className="size-4" />
-                <span className="hidden sm:inline">Profile</span>
-              </Link>
-              
-              <div className="flex items-center border-l border-base-content/20 pl-3 ml-1">
+          <div className="flex items-center gap-4">
+            {!isLoaded ? (
+              <div className="size-8 rounded-full bg-white/5 animate-pulse" />
+            ) : isSignedIn ? (
+              <div className="flex items-center gap-4">
+                {isSyncing && (
+                  <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-white/30 font-bold">
+                    <Loader2 className="size-3 animate-spin" />
+                    <span>Syncing</span>
+                  </div>
+                )}
+                <div className="h-6 w-px bg-white/10 mx-1" />
                 <UserButton 
                   afterSwitchSessionUrl="/"
                   appearance={{
                     elements: {
-                      userButtonAvatarBox: "size-8"
+                      userButtonAvatarBox: "size-8 rounded-lg border border-white/10 hover:border-white/20 transition-colors"
                     }
                   }}
                 />
               </div>
-            </>
-          ) : (
-            <>
-              <SignInButton mode="modal">
-                <button className="btn btn-ghost btn-sm font-medium">
-                  Sign In
-                </button>
-              </SignInButton>
-              
-              <SignUpButton mode="modal">
-                <button className="btn btn-primary btn-sm shadow-md">
-                  Get Started
-                </button>
-              </SignUpButton>
-            </>
-          )}
+            ) : (
+              <div className="flex items-center gap-4">
+                <SignInButton mode="modal">
+                  <button className="text-sm font-medium text-white/50 hover:text-white transition-colors">
+                    Login
+                  </button>
+                </SignInButton>
+                
+                <SignUpButton mode="modal">
+                  <button className="btn-primary text-xs py-2 px-4">
+                    Get Started
+                  </button>
+                </SignUpButton>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </nav>
+    </header>
   );
 }
 

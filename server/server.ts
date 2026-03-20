@@ -4,7 +4,11 @@ import { connectDB } from './src/config/db';
 
 const PORT = process.env.PORT
 
-connectDB()
-app.listen(PORT, () => {
-  console.log(`🚀 Server ready at http://localhost:${PORT}`);
-});
+async function startServer() {
+  await connectDB()
+  app.listen(PORT, () => {
+    console.log(`🚀 Server ready at http://localhost:${PORT}`);
+  });
+}
+
+startServer()
