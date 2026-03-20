@@ -2,6 +2,9 @@ import { generateFromLLM } from "../../../providers/llm.router";
 import { retrieveContext } from "./retrieval/retrieval.service";
 
 
+/**
+ * Hybrid RAG + LLM Fallback Service
+ */
 export const generateRAGResponse = async ({
   userId,
   query,
@@ -9,24 +12,20 @@ export const generateRAGResponse = async ({
   userId: string;
   query: string;
 }) => {
-  // 1. Retrieve relevant chunks
+  // 1. Retrieval Step: Try retrieving context from vector DB
   const context = await retrieveContext({ userId, query });
-  const contextText = context
-    .map((c, i) => `Chunk ${i + 1}: ${c}`)
-    .join("\n\n");
+  const contextExists = context && context.length > 0;
 
-  const prompt = `
-You are an expert AI assistant.
+  let prompt: string;
 
-STRICT RULES:
-- Answer ONLY from the context
-- Do NOT add external knowledge
-- If missing info → say "Not found in context"
+  if (contextExists) {
+    // 2. Decision Logic: → Use RAG prompt (context + query)
+    const contextText = context
+      .map((c, i) => `Context [${i + 1}]: ${c}`)
+      .join("\n\n");
 
-STYLE:
-- Be concise
-- Use bullet points if needed
-- Compare when asked
+    prompt = `
+Use the provided context only.
 
 CONTEXT:
 ${contextText}
@@ -36,12 +35,25 @@ ${query}
 
 ANSWER:
 `;
+  } else {
+    // 2. Decision Logic: NO context → Fallback to normal LLM (query only)
+    prompt = `
+Answer using your knowledge clearly and concisely.
 
-  // 3. Call LLM
+QUESTION:
+${query}
+
+ANSWER:
+`;
+  }
+
+  // 3. Call LLM (Chat Endpoint functionality)
+  // Always respond (never "Not found in context")
   const response = await generateFromLLM(prompt);
 
   return {
     answer: response,
-    context, // optional (for debugging)
+    mode: contextExists ? "RAG" : "LLM_FALLBACK",
+    sources: contextExists ? context : [],
   };
 };

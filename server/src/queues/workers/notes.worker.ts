@@ -4,6 +4,8 @@ import { redisConnection } from "../connection";
 import { generateQuestionsWithFallback } from "../../providers/llm.router";
 import { prisma } from "../../config/db";
 
+import { notesPrompt } from "../../modules/ai/prompts/notes.prompt";
+
 type NotesJobData = {
   topic: string;
   userId: string;
@@ -14,21 +16,22 @@ new Worker<NotesJobData>(
   async (job: Job<NotesJobData>) => {
     const { topic, userId } = job.data;
 
-    console.log("🚀 Processing notes job for topic:", topic);
+    console.log("🚀 Processing notes generation job for topic:", topic);
 
-    const result = await generateQuestionsWithFallback(
-      `Generate detailed study notes for this topic:\n${topic}`
-    );
+    // Prompt Strategy: Generate comprehensive notes from topic (no vector DB dependency)
+    const prompt = notesPrompt(topic);
+
+    const result = await generateQuestionsWithFallback(prompt);
 
     const saved = await prisma.note.create({
       data: {
         topic,
-        notes: JSON.stringify(result),
+        notes: result as string, // Store the generated markdown notes
         userId,
       },
     });
 
-    console.log("✅ Notes job completed:", saved.id);
+    console.log("✅ Notes generation job completed:", saved.id);
 
     return saved;
   },
