@@ -1,15 +1,19 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api',
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 export const authApi = {
-  syncUser: (data: { token: string}) => {
-    return api.post('/auth/sync', data);
+  syncUser: (token: string) => {
+    return api.post('/auth/sync', {}, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
   }
 };
 

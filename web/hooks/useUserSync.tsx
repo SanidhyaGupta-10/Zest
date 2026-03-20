@@ -1,7 +1,7 @@
 import { useAuth, useUser } from "@clerk/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
-import syncUserReq from "../lib/api";
+import { authApi } from "../lib/api";
 
 export const useUserSync = () => {
   const { isLoaded, isSignedIn, getToken } = useAuth();
@@ -12,7 +12,7 @@ export const useUserSync = () => {
     mutationFn: async () => {
       const token = await getToken();
       if (!token) throw new Error("Missing Token");
-      return syncUserReq(token);
+      return authApi.syncUser(token);
     },
     onSuccess: () => { hasSynced.current = true; }
   });
