@@ -1,5 +1,5 @@
 import express from 'express';
-import { chatController, taskController, getChats, getChatMessages } from './ai.controller';
+import { chatController, taskController, getChats, getChatMessages, ingestDocumentController } from './ai.controller';
 import { requireAuth } from '@clerk/express';
 import { rateLimit } from '../../middleware/rateLimit';
 
@@ -10,8 +10,8 @@ const router = express.Router();
  * POST /api/ai/chat
  */
 router.post(
-    "/chat", 
-    requireAuth(), 
+    "/chat",
+    requireAuth(),
     rateLimit,
     chatController
 );
@@ -39,6 +39,17 @@ router.get(
     "/chats/:chatId",
     requireAuth(),
     getChatMessages
+);
+
+/**
+ * Document Ingestion
+ * POST /api/ai/ingest
+ */
+router.post(
+    "/ingest",
+    requireAuth(),
+    rateLimit,
+    ingestDocumentController
 );
 
 export default router;

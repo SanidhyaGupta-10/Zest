@@ -5,6 +5,7 @@ import { aiQueue } from "../../queues/ai.queue";
 import { generateRAGResponse } from "./rag/rag.service";
 import { prisma } from "../../config/db";
 import { AiTaskType } from "../../queues/workers/ai.worker";
+import { ingestDocument } from "./rag/ingestion/ingestion.service";
 
 /**
  * Hybrid RAG Chat Controller
@@ -126,4 +127,43 @@ export const getChatMessages = async (req: AuthenticatedRequest, res: Response) 
   }
 
   return res.json({ success: true, chat });
+};
+
+/**
+ * Document Ingestion Controller
+ * Handles document chunking and embedding storage for RAG
+ */
+export const ingestDocumentController = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { content } = req.body;
+    const userId = getAuth(req).userId;
+
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    if (!content || typeof content !== "string") {
+      return res.status(400).json({ message: "Content is required and must be a string" });
+    }
+
+    console.log(`[IngestDocument] Processing document for user: ${userId}, content length: ${content.length}`);
+
+    // Process the document - chunk and store embeddings
+    const result = await ingestDocument({
+      userId,
+      content,
+    });
+
+    console.log(`[IngestDocument] Successfully ingested ${result.chunks} chunks`);
+
+    return res.json({
+      success: true,
+      chunks: result.chunks,
+      message: `Document processed and indexed into ${result.chunks} chunks`,
+    });
+
+  } catch (error) {
+    console.error("Ingest Document Controller Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to ingest document",
+    });
+  }
 };

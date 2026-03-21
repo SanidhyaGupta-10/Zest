@@ -1,14 +1,22 @@
-import { useAiTask } from "./useAiTask";
-import { AiTaskType } from "@/lib/api";
+import { useAuth } from "@clerk/nextjs";
+import { useMutation } from "@tanstack/react-query";
+import { aiApi } from "@/lib/api";
 
 export const useNotes = () => {
-  const taskMutation = useAiTask();
+  const { userId, getToken } = useAuth();
 
-  return {
-    ...taskMutation,
-    mutate: (topic: string, options?: any) =>
-      taskMutation.mutate({ type: AiTaskType.NOTES, topic }, options),
-    mutateAsync: (topic: string, options?: any) =>
-      taskMutation.mutateAsync({ type: AiTaskType.NOTES, topic }, options),
-  };
+  return useMutation({
+    mutationFn: async (content: string) => {
+      if (!userId) throw new Error("User not authenticated");
+
+      const token = await getToken();
+      console.log('[useNotes] Ingesting document, content length:', content.length);
+
+      // Ingest the document for RAG
+      const response = await aiApi.ingestDocument({ content }, token || undefined);
+      console.log('[useNotes] Ingestion response:', response.data);
+
+      return response;
+    },
+  });
 };

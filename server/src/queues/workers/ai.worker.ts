@@ -53,7 +53,7 @@ new Worker<JobData>(
           const contextText = context?.length > 0 ? context.join("\n\n") : undefined;
           prompt = questionPrompt(topic, contextText);
           result = await generateQuestionsWithFallback(prompt);
-          
+
           // Parse JSON if needed
           let parsedQuestions = result;
           try {
@@ -88,10 +88,13 @@ new Worker<JobData>(
           });
           break;
         }
+
+        default:
+          throw new Error(`Unknown task type: ${type}`);
       }
 
       await job.updateProgress(80);
-      
+
       // Cache result
       await setCache(cacheKey, result, 60 * 60 * 24);
       await job.updateProgress(100);

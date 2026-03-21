@@ -1,5 +1,5 @@
-export type LLMResponse = string[];
+export type LLMResponse = string | string[];
 
 export interface LLMProvider {
-  generateQuestions(topic: string): Promise<LLMResponse>;
+  generate(prompt: string): Promise<LLMResponse>;
 }

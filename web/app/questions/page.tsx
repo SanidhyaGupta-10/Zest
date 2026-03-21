@@ -14,9 +14,9 @@ export default function QuestionsPage() {
 
   const handleGenerate = async () => {
     if (!topic.trim() || mutation.isPending) return;
-    
+
     mutation.mutate(topic, {
-      onSuccess: (res) => {
+      onSuccess: (res: string | string[]) => {
         const qList = Array.isArray(res) ? res : [res as string];
         setQuestions(qList);
       }
@@ -39,7 +39,7 @@ export default function QuestionsPage() {
   return (
     <div className="max-w-5xl mx-auto py-10 px-4">
       {/* Header */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="mb-12 text-center"
@@ -49,13 +49,13 @@ export default function QuestionsPage() {
         </div>
         <h1 className="text-4xl font-black tracking-tight mb-4">Quiz Architect</h1>
         <p className="text-gray-400 font-medium max-w-2xl mx-auto">
-          Transform your knowledge into practice. Generate challenging quiz 
+          Transform your knowledge into practice. Generate challenging quiz
           questions tailored to your specific topics or study materials.
         </p>
       </motion.div>
 
       {/* Input Section */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         className="glass-card p-2 mb-12 bg-white/[0.02] border-white/5 shadow-2xl"
@@ -83,7 +83,7 @@ export default function QuestionsPage() {
                 Architecting...
               </span>
             ) : (
-                <span className="flex items-center gap-3">
+              <span className="flex items-center gap-3">
                 <Sparkles className="size-4" />
                 Generate Quiz
               </span>
@@ -95,7 +95,7 @@ export default function QuestionsPage() {
       {/* Questions List */}
       <AnimatePresence>
         {questions.length > 0 && (
-          <motion.div 
+          <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
@@ -106,14 +106,14 @@ export default function QuestionsPage() {
                 Knowledge Check <span className="text-blue-500 text-sm font-black bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20">{questions.length} Items</span>
               </h2>
               <div className="flex gap-3">
-                <button 
+                <button
                   onClick={() => setQuestions([])}
                   className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/30 hover:text-red-400 hover:bg-red-400/10 hover:border-red-400/20 transition-all"
                   title="Clear all"
                 >
                   <Trash2 className="size-4" />
                 </button>
-                <button 
+                <button
                   onClick={handleGenerate}
                   className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/30 hover:text-blue-400 hover:bg-blue-400/10 hover:border-blue-400/20 transition-all"
                   title="Regenerate"
@@ -124,31 +124,31 @@ export default function QuestionsPage() {
             </div>
 
             {questions.map((q, idx) => (
-              <motion.div 
-                key={idx} 
+              <motion.div
+                key={idx}
                 variants={itemVariants}
                 className="glass-card p-8 flex gap-6 group hover:border-blue-500/40 hover:bg-white/[0.04] transition-all relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                
+
                 <div className="shrink-0">
                   <div className="size-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm font-black text-blue-400 shadow-inner">
                     {idx + 1}
                   </div>
                 </div>
-                
+
                 <div className="flex-1 space-y-4">
                   <p className="text-lg text-gray-100 font-medium leading-relaxed pt-1 select-none cursor-default">
                     {q}
                   </p>
-                  
+
                   <div className="flex items-center gap-6 pt-2">
-                     <button className="text-[10px] font-black text-white/20 uppercase tracking-widest hover:text-blue-400 transition-colors flex items-center gap-1.5">
-                       Reveal Hint
-                     </button>
-                     <button className="text-[10px] font-black text-white/20 uppercase tracking-widest hover:text-emerald-400 transition-colors flex items-center gap-1.5">
-                       Check Solution
-                     </button>
+                    <button className="text-[10px] font-black text-white/20 uppercase tracking-widest hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                      Reveal Hint
+                    </button>
+                    <button className="text-[10px] font-black text-white/20 uppercase tracking-widest hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+                      Check Solution
+                    </button>
                   </div>
                 </div>
 
@@ -164,7 +164,7 @@ export default function QuestionsPage() {
       {/* Error State */}
       <AnimatePresence>
         {mutation.isError && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="glass-card p-8 border-red-500/20 bg-red-500/5 mt-8"
@@ -176,7 +176,7 @@ export default function QuestionsPage() {
               <div>
                 <h3 className="text-lg font-black text-red-400 mb-2 uppercase tracking-tighter leading-none">Generation Failed</h3>
                 <p className="text-sm font-medium text-red-400/60 leading-relaxed">
-                  We couldn't generate questions for this topic. Please ensure you have 
+                  We couldn't generate questions for this topic. Please ensure you have
                   processed relevant notes in the "Notes" section first, or try a different topic.
                 </p>
               </div>

@@ -72,6 +72,12 @@ export const aiApi = {
     return client.post('/ai/chat', data);
   },
 
+  // Document Ingestion
+  ingestDocument: (data: { content: string }, token?: string) => {
+    const client = token ? createApiClient(token) : api;
+    return client.post('/ai/ingest', data);
+  },
+
   // History
   getChats: (token?: string) => {
     const client = token ? createApiClient(token) : api;
