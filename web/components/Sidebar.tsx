@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageSquare, BookOpen, FileText, HelpCircle, LayoutDashboard, Settings, User, X } from "lucide-react";
+import { MessageSquare, BookOpen, FileText, HelpCircle, LayoutDashboard, Settings, User, X, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
@@ -10,6 +10,7 @@ import { useEffect } from "react";
 const menuItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
   { name: "Chat", href: "/chat", icon: MessageSquare },
+  { name: "History", href: "/history", icon: History },
   { name: "Notes", href: "/notes", icon: BookOpen },
   { name: "Summary", href: "/summary", icon: FileText },
   { name: "Questions", href: "/questions", icon: HelpCircle },
@@ -34,8 +35,8 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
               href={item.href}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative",
-                isActive 
-                  ? "bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]" 
+                isActive
+                  ? "bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
                   : "text-gray-400 hover:text-white hover:bg-white/5"
               )}
             >
@@ -44,12 +45,12 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
                 isActive ? "text-blue-400 scale-110" : "group-hover:text-blue-400 group-hover:scale-110"
               )} />
               <span className="font-bold tracking-tight text-sm uppercase">{item.name}</span>
-              
+
               {isActive && (
                 <>
-                  <motion.div 
+                  <motion.div
                     layoutId="active-nav"
-                    className="absolute inset-0 rounded-xl bg-linear-to-r from-blue-500/10 via-transparent to-transparent pointer-events-none" 
+                    className="absolute inset-0 rounded-xl bg-linear-to-r from-blue-500/10 via-transparent to-transparent pointer-events-none"
                   />
                   <div className="ml-auto size-2 rounded-full bg-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.8)]" />
                 </>
@@ -79,8 +80,8 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 h-screen fixed left-0 top-0 border-r border-white/5 bg-black/40 backdrop-blur-2xl z-40 flex-col shadow-2xl overflow-hidden ring-1 ring-white/5">
-         <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-blue-500 via-transparent to-transparent" />
-         {SidebarContent}
+        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-blue-500 via-transparent to-transparent" />
+        {SidebarContent}
       </aside>
 
       {/* Mobile Sidebar Overlay */}
@@ -101,7 +102,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="fixed left-0 top-0 w-72 h-screen bg-slate-950 border-r border-white/10 z-[60] md:hidden shadow-2xl"
             >
-              <button 
+              <button
                 onClick={() => setIsOpen?.(false)}
                 className="absolute top-6 right-6 p-2 rounded-xl bg-white/5 border border-white/10"
               >

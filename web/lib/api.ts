@@ -88,6 +88,20 @@ export const aiApi = {
     return client.get(`/ai/chats/${chatId}`);
   },
 
+  // User Content History
+  getUserSummaries: (token?: string) => {
+    const client = token ? createApiClient(token) : api;
+    return client.get('/ai/history/summaries');
+  },
+  getUserNotes: (token?: string) => {
+    const client = token ? createApiClient(token) : api;
+    return client.get('/ai/history/notes');
+  },
+  getUserQuestions: (token?: string) => {
+    const client = token ? createApiClient(token) : api;
+    return client.get('/ai/history/questions');
+  },
+
   // Unified Tasks - returns { jobId } (async)
   createTask: (data: { type: AiTaskType; topic?: string; content?: string }, token?: string) => {
     const client = token ? createApiClient(token) : api;

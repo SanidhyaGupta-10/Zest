@@ -1,5 +1,5 @@
 import express from 'express';
-import { chatController, taskController, getChats, getChatMessages, ingestDocumentController } from './ai.controller';
+import { chatController, taskController, getChats, getChatMessages, ingestDocumentController, getUserSummaries, getUserNotes, getUserQuestions } from './ai.controller';
 import { requireAuth } from '@clerk/express';
 import { rateLimit } from '../../middleware/rateLimit';
 
@@ -39,6 +39,27 @@ router.get(
     "/chats/:chatId",
     requireAuth(),
     getChatMessages
+);
+
+/**
+ * History Routes - User's Generated Content
+ */
+router.get(
+    "/history/summaries",
+    requireAuth(),
+    getUserSummaries
+);
+
+router.get(
+    "/history/notes",
+    requireAuth(),
+    getUserNotes
+);
+
+router.get(
+    "/history/questions",
+    requireAuth(),
+    getUserQuestions
 );
 
 /**

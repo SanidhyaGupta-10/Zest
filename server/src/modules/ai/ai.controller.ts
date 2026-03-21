@@ -130,6 +130,87 @@ export const getChatMessages = async (req: AuthenticatedRequest, res: Response) 
 };
 
 /**
+ * Get User's Summaries History
+ * GET /api/ai/history/summaries
+ */
+export const getUserSummaries = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = getAuth(req).userId;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const summaries = await prisma.summary.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        content: true,
+        result: true,
+        createdAt: true,
+      },
+    });
+
+    return res.json({ success: true, summaries });
+  } catch (error: any) {
+    console.error("Get Summaries Error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * Get User's Notes History
+ * GET /api/ai/history/notes
+ */
+export const getUserNotes = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = getAuth(req).userId;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const notes = await prisma.note.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        topic: true,
+        notes: true,
+        createdAt: true,
+      },
+    });
+
+    return res.json({ success: true, notes });
+  } catch (error: any) {
+    console.error("Get Notes Error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * Get User's Questions History
+ * GET /api/ai/history/questions
+ */
+export const getUserQuestions = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const userId = getAuth(req).userId;
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const questions = await prisma.question.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        topic: true,
+        questions: true,
+        createdAt: true,
+      },
+    });
+
+    return res.json({ success: true, questions });
+  } catch (error: any) {
+    console.error("Get Questions Error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
  * Document Ingestion Controller
  * Handles document chunking and embedding storage for RAG
  */
@@ -159,11 +240,13 @@ export const ingestDocumentController = async (req: AuthenticatedRequest, res: R
       message: `Document processed and indexed into ${result.chunks} chunks`,
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Ingest Document Controller Error:", error);
+    console.error("Error stack:", error.stack);
     return res.status(500).json({
       success: false,
       message: "Failed to ingest document",
+      error: error.message,
     });
   }
 };

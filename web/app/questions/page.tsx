@@ -6,18 +6,36 @@ import { HelpCircle, Loader2, Sparkles, AlertCircle, Command, Trash2, RotateCcw 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface Question {
+  id: number;
+  question: string;
+  difficulty: string;
+  category: string;
+}
+
 export default function QuestionsPage() {
   const { user } = useUser();
   const [topic, setTopic] = useState("");
-  const [questions, setQuestions] = useState<string[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const mutation = useQuestions();
 
   const handleGenerate = async () => {
     if (!topic.trim() || mutation.isPending) return;
 
     mutation.mutate(topic, {
-      onSuccess: (res: string | string[]) => {
-        const qList = Array.isArray(res) ? res : [res as string];
+      onSuccess: (res: any) => {
+        // Handle both array of objects and single string fallback
+        let qList: Question[] = [];
+        if (Array.isArray(res)) {
+          qList = res.map((item, idx) => {
+            if (typeof item === 'string') {
+              return { id: idx + 1, question: item, difficulty: 'Medium', category: 'General' };
+            }
+            return item as Question;
+          });
+        } else if (typeof res === 'string') {
+          qList = [{ id: 1, question: res, difficulty: 'Medium', category: 'General' }];
+        }
         setQuestions(qList);
       }
     });
@@ -137,12 +155,20 @@ export default function QuestionsPage() {
                   </div>
                 </div>
 
-                <div className="flex-1 space-y-4">
-                  <p className="text-lg text-gray-100 font-medium leading-relaxed pt-1 select-none cursor-default">
-                    {q}
+                <div className="flex-1 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                      {q.difficulty}
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                      {q.category}
+                    </span>
+                  </div>
+                  <p className="text-lg text-gray-100 font-medium leading-relaxed select-none cursor-default">
+                    {q.question}
                   </p>
 
-                  <div className="flex items-center gap-6 pt-2">
+                  <div className="flex items-center gap-6 pt-3">
                     <button className="text-[10px] font-black text-white/20 uppercase tracking-widest hover:text-blue-400 transition-colors flex items-center gap-1.5">
                       Reveal Hint
                     </button>
