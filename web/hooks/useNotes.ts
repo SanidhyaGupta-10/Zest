@@ -1,11 +1,14 @@
-import { useMutation } from "@tanstack/react-query";
-import { aiApi } from "@/lib/api";
+import { useAiTask } from "./useAiTask";
+import { AiTaskType } from "@/lib/api";
 
-export const useNotes = (userId: string | null | undefined) => {
-  return useMutation({
-    mutationFn: (content: string) => {
-      if (!userId) throw new Error("User not authenticated");
-      return aiApi.ingest({ content, userId });
-    },
-  });
+export const useNotes = () => {
+  const taskMutation = useAiTask();
+
+  return {
+    ...taskMutation,
+    mutate: (topic: string, options?: any) =>
+      taskMutation.mutate({ type: AiTaskType.NOTES, topic }, options),
+    mutateAsync: (topic: string, options?: any) =>
+      taskMutation.mutateAsync({ type: AiTaskType.NOTES, topic }, options),
+  };
 };

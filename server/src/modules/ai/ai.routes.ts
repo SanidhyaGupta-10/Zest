@@ -1,5 +1,5 @@
 import express from 'express';
-import { chatController, generateQuestions, notesController, summarizeController } from './ai.controller';
+import { chatController, taskController, getChats, getChatMessages } from './ai.controller';
 import { requireAuth } from '@clerk/express';
 import { rateLimit } from '../../middleware/rateLimit';
 
@@ -16,37 +16,29 @@ router.post(
     chatController
 );
 
-/** 
- *  Generate Questions
- *  POST /api/ai/generate-questions
- */
-router.post(
-    "/generate-questions", 
-    requireAuth(), 
-    rateLimit,
-    generateQuestions
-)
-
 /**
- *  Summarize
- *  POST /api/ai/summarize
+ * Unified AI Tasks (Questions, Summary, Notes)
+ * POST /api/ai/tasks
  */
 router.post(
-    "/summarize", 
-    requireAuth(), 
+    "/tasks",
+    requireAuth(),
     rateLimit,
-    summarizeController
+    taskController
 );
 
 /**
- *  Notes
- *  POST /api/ai/notes
-*/
-router.post(
-    "/notes", 
-    requireAuth(), 
-    rateLimit, 
-    notesController
+ * Chat History
+ */
+router.get(
+    "/chats",
+    requireAuth(),
+    getChats
+);
+router.get(
+    "/chats/:chatId",
+    requireAuth(),
+    getChatMessages
 );
 
 export default router;

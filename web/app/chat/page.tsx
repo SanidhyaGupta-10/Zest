@@ -1,17 +1,18 @@
 "use client";
 
-import { useChat } from "@/hooks/useChat";
 import { useUser } from "@clerk/nextjs";
 import { Send, Loader2, User, Bot, Sparkles, Command, Copy } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Markdown from "@/components/Markdown";
+import { useChat } from "@/hooks/useChat";
+;
 
 
 export default function ChatPage() {
   const { user } = useUser();
-  const { messages, sendMessage, isLoading } = useChat(user?.id);
+  const { messages, sendMessage, isLoading } = useChat();
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -85,7 +86,7 @@ export default function ChatPage() {
               </motion.div>
             )}
 
-            {messages.map((msg, idx) => (
+            {messages.map((msg: any, idx: number) => (
               <motion.div 
                 key={idx} 
                 initial={{ opacity: 0, y: 20 }}

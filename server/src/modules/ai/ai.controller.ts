@@ -1,164 +1,129 @@
 import { Response } from "express";
-import { questionQueue } from "../../queues/question.queue";
+import { getAuth } from "@clerk/express";
 import { AuthenticatedRequest } from "../Request.type";
-import { summaryQueue } from "../../queues/summary.queue";
-import { notesQueue } from "../../queues/notes.queue";
+import { aiQueue } from "../../queues/ai.queue";
 import { generateRAGResponse } from "./rag/rag.service";
+import { prisma } from "../../config/db";
+import { AiTaskType } from "../../queues/workers/ai.worker";
 
-
+/**
+ * Hybrid RAG Chat Controller
+ * Handles user queries with optional RAG context and LLM fallback
+ */
 export const chatController = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { query } = req.body;
-    const userId = req.auth?.userId;
+    const { query, chatId } = req.body;
+    const userId = getAuth(req).userId;
 
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+    console.log('[ChatController] Request body:', req.body);
+    console.log('[ChatController] UserId from auth:', userId);
+
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    if (!query) return res.status(400).json({ message: "Query is required" });
+
+    // Handle Chat Session
+    let chat = chatId ? await prisma.chat.findUnique({ where: { id: chatId } }) : null;
+
+    if (chatId && (!chat || chat.userId !== userId)) {
+      return res.status(404).json({ message: "Chat not found" });
     }
 
-    if (!query) {
-      return res.status(400).json({ message: "Query is required" });
-    }
-
-    // This uses the hybrid RAG logic (RAG with direct LLM fallback)
-    const result = await generateRAGResponse({
-       userId, query 
+    if (!chat) {
+      chat = await prisma.chat.create({
+        data: { userId, title: query.slice(0, 50) },
       });
+    }
 
-    return res.json({
-      success: true,
-      ...result,
+    // Save User Message
+    await prisma.message.create({
+      data: { chatId: chat.id, role: "user", content: query },
     });
+
+    // Generate Response
+    const result = await generateRAGResponse({ userId, query });
+    console.log('[ChatController] RAG result:', JSON.stringify(result));
+
+    // Save Assistant Message
+    await prisma.message.create({
+      data: { chatId: chat.id, role: "assistant", content: result.answer ?? "No response generated" },
+    });
+
+    const responsePayload = { chatId: chat.id, answer: result.answer };
+    console.log('[ChatController] Sending response:', JSON.stringify(responsePayload));
+    return res.json(responsePayload);
+
   } catch (error) {
     console.error("Chat Controller Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Something went wrong during processing",
-    });
+    return res.status(500).json({ success: false, message: "Processing failed" });
   }
 };
 
-
-export const generateQuestions = async (req: AuthenticatedRequest, res: Response) => {
+/**
+ * Unified Task Controller
+ * Handles Summarization, Question Generation, and Note Generation
+ */
+export const taskController = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { topic } = req.body;
-    // Getting user ID from the request
-    // but we can do also :-  const userId = (req as any).auth?.userId;
-    // but below is the best way to get user ID from the request
-    const userId = req.auth?.userId;
+    const { type, topic, content } = req.body;
+    const userId = getAuth(req).userId;
 
-    // Checking if user is authenticated
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-    // Checking if topic is provided
-    if (!topic) {
-      return res.status(400).json({
-        message: "Topic is required"
-      });
+    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    if (!type || !Object.values(AiTaskType).includes(type)) {
+      return res.status(400).json({ message: "Valid task type is required" });
     }
 
-    // Adding job to queue
-    const job = await questionQueue.add("generate", {
-      topic,
-      userId
-    }, {
-      attempts: 3,
-      backoff: {
-        type: "exponential",
-        delay: 1000,
-      },
-    });
-
-    return res.json({
-      success: true,
-      jobId: job.id,
-      message: "Job queued successfully",
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Something went wrong"
-    });
-  }
-};
-
-export const summarizeController = async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { content } = req.body;
-    const userId = req.auth?.userId;
-
-    if (!userId) {
-      return res.status(401).json({ 
-        message: "Unauthorized" 
-      });
-    }
-
-    if (!content) {
-      return res.status(400).json({ 
-        message: "Content is required" 
-      });
-    }
-
-    const job = await summaryQueue.add("summarize", {
-      content,
+    // Queue the job
+    const job = await aiQueue.add(type.toLowerCase(), {
+      type,
       userId,
+      topic,
+      content
     }, {
       attempts: 3,
-      backoff: {
-        type: "exponential",
-        delay: 1000,
-      },
+      backoff: { type: "exponential", delay: 1000 },
     });
 
     return res.json({
       success: true,
       jobId: job.id,
-      message: "Summary job queued successfully",
+      message: `${type} task queued successfully`,
     });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Something went wrong",
-    });
+    console.error("Task Controller Error:", error);
+    return res.status(500).json({ success: false, message: "Failed to queue task" });
   }
 };
 
-export const notesController = async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { topic } = req.body;
-    const userId = req.auth?.userId;
+/**
+ * Get History Controllers
+ */
+export const getChats = async (req: AuthenticatedRequest, res: Response) => {
+  const userId = getAuth(req).userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-    if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+  const chats = await prisma.chat.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    include: { _count: { select: { messages: true } } },
+  });
 
-    if (!topic) {
-      return res.status(400).json({ message: "Topic is required" });
-    }
+  return res.json({ success: true, chats });
+};
 
-    const job = await notesQueue.add("notes", {
-      topic,
-      userId,
-    }, {
-      attempts: 3,
-      backoff: {
-        type: "exponential",
-        delay: 1000,
-      },
-    });
+export const getChatMessages = async (req: AuthenticatedRequest, res: Response) => {
+  const chatId = req.params.chatId as string;
+  const userId = getAuth(req).userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-    return res.json({
-      success: true,
-      jobId: job.id,
-      message: "Notes job queued successfully",
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: "Something went wrong",
-    });
+  const chat = await prisma.chat.findUnique({
+    where: { id: chatId },
+    include: { messages: { orderBy: { createdAt: "asc" } } },
+  });
+
+  if (!chat || chat.userId !== userId) {
+    return res.status(404).json({ message: "Chat not found" });
   }
+
+  return res.json({ success: true, chat });
 };

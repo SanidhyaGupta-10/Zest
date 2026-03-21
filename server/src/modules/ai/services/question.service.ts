@@ -7,7 +7,7 @@ export const generateQuestions = async (topic: string) => {
   const result = await generateFromLLM(prompt);
 
   try {
-    return JSON.parse(result);
+    return JSON.parse(result as string);
   } catch {
     return [result]; // fallback safety
   }

@@ -4,10 +4,7 @@ import { geminiProvider } from "./gemini.provider";
 import { groqProvider } from "./groq.provider";
 import { openaiProvider } from "./openai.provider";
 
-/**
- * General-purpose LLM caller with multi-provider fallback
- * Ensures responses are under 2-3 seconds by prioritizing fast models (Groq)
- */
+// Multi-provider fallback ensures responses are under 2-3 seconds by prioritizing fast models (Groq)
 export const generateWithFallback = async (fullPrompt: string) => {
   // 1️⃣ HIGH SPEED: Groq (Llama 3.3 70B)
   try {

@@ -10,7 +10,7 @@ export default function QuestionsPage() {
   const { user } = useUser();
   const [topic, setTopic] = useState("");
   const [questions, setQuestions] = useState<string[]>([]);
-  const mutation = useQuestions(user?.id);
+  const mutation = useQuestions();
 
   const handleGenerate = async () => {
     if (!topic.trim() || mutation.isPending) return;

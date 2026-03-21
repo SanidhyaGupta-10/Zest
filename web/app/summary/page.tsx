@@ -11,7 +11,7 @@ export default function SummaryPage() {
   const [text, setText] = useState("");
   const [summary, setSummary] = useState("");
   const [copied, setCopied] = useState(false);
-  const mutation = useSummary(user?.id);
+  const mutation = useSummary();
 
   const handleSummarize = async () => {
     if (!text.trim() || mutation.isPending) return;

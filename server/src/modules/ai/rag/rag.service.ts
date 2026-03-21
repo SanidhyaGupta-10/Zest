@@ -1,7 +1,6 @@
 import { generateFromLLM } from "../../../providers/llm.router";
 import { retrieveContext } from "./retrieval/retrieval.service";
 
-
 /**
  * Hybrid RAG + LLM Fallback Service
  */

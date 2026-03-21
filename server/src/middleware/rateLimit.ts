@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { getAuth } from "@clerk/express";
 import { redisConnection } from "../queues/connection";
 import { AuthenticatedRequest } from "../modules/Request.type";
 
@@ -11,7 +12,7 @@ export const rateLimit = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.auth?.userId;
+    const userId = getAuth(req).userId;
 
     if (!userId) {
       return res.status(401).json({ 

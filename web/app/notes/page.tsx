@@ -10,7 +10,7 @@ export default function NotesPage() {
   const { user } = useUser();
   const [content, setContent] = useState("");
   const [successData, setSuccessData] = useState<{ count: number } | null>(null);
-  const mutation = useNotes(user?.id);
+  const mutation = useNotes();
 
   const handleSave = async () => {
     if (!content.trim() || mutation.isPending) return;

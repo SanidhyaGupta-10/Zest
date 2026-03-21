@@ -1,8 +1,9 @@
 import express from "express";
-import { getJobStatus } from "./jobs.contoller";
+import { getJobStatus } from "./jobs.controller";
+import { requireAuth } from "@clerk/express";
 
 const router = express.Router();
 
-router.get("/:jobId", getJobStatus);
+router.get("/:jobId", requireAuth(), getJobStatus);
 
 export default router;
