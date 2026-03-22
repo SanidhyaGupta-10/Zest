@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import { HelpCircle, Loader2, Sparkles, AlertCircle, Command, Trash2, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { BackButton } from "@/components/BackButton";
 
 interface Question {
   id: number;
@@ -24,18 +25,57 @@ export default function QuestionsPage() {
 
     mutation.mutate(topic, {
       onSuccess: (res: any) => {
+        console.log('[handleGenerate] Raw response:', res);
+
         // Handle both array of objects and single string fallback
         let qList: Question[] = [];
-        if (Array.isArray(res)) {
-          qList = res.map((item, idx) => {
+
+        // If res is a string, try to parse it as JSON
+        let parsedRes = res;
+        if (typeof res === 'string') {
+          try {
+            // Try to extract JSON array from string
+            const jsonMatch = res.match(/\[[\s\S]*\]/);
+            if (jsonMatch) {
+              parsedRes = JSON.parse(jsonMatch[0]);
+            } else {
+              parsedRes = JSON.parse(res);
+            }
+          } catch (e) {
+            // Not valid JSON, treat as single question text
+            parsedRes = res;
+          }
+        }
+
+        if (Array.isArray(parsedRes)) {
+          qList = parsedRes.map((item, idx) => {
             if (typeof item === 'string') {
               return { id: idx + 1, question: item, difficulty: 'Medium', category: 'General' };
             }
-            return item as Question;
+            // Ensure the item has the required question field
+            return {
+              id: item.id || idx + 1,
+              question: item.question || String(item),
+              difficulty: item.difficulty || 'Medium',
+              category: item.category || 'General'
+            };
           });
-        } else if (typeof res === 'string') {
-          qList = [{ id: 1, question: res, difficulty: 'Medium', category: 'General' }];
+        } else if (typeof parsedRes === 'string') {
+          qList = [{ id: 1, question: parsedRes, difficulty: 'Medium', category: 'General' }];
+        } else if (parsedRes && typeof parsedRes === 'object') {
+          // Handle object with questions property (from history API)
+          const questionsArray = parsedRes.questions || parsedRes.result || parsedRes;
+          if (Array.isArray(questionsArray)) {
+            qList = questionsArray.map((item: any, idx: number) => ({
+              id: item.id || idx + 1,
+              question: item.question || String(item),
+              difficulty: item.difficulty || 'Medium',
+              category: item.category || 'General'
+            }));
+          }
         }
+
+        console.log('[handleGenerate] Parsed questions:', qList);
         setQuestions(qList);
       }
     });
@@ -56,6 +96,14 @@ export default function QuestionsPage() {
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-4"
+      >
+        <BackButton />
+      </motion.div>
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -76,7 +124,7 @@ export default function QuestionsPage() {
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="glass-card p-2 mb-12 bg-white/[0.02] border-white/5 shadow-2xl"
+        className="glass-card p-2 mb-12 bg-white/2 border-white/5 shadow-2xl"
       >
         <div className="flex flex-col md:flex-row gap-2">
           <div className="flex-1 relative">
@@ -93,7 +141,7 @@ export default function QuestionsPage() {
           <button
             onClick={handleGenerate}
             disabled={mutation.isPending || !topic.trim()}
-            className="btn-primary h-16 px-10 text-sm font-bold shadow-blue-900/40 min-w-[220px]"
+            className="btn-primary h-16 px-10 text-sm font-bold shadow-blue-900/40 min-w-55"
           >
             {mutation.isPending ? (
               <span className="flex items-center gap-3">
@@ -145,7 +193,7 @@ export default function QuestionsPage() {
               <motion.div
                 key={idx}
                 variants={itemVariants}
-                className="glass-card p-8 flex gap-6 group hover:border-blue-500/40 hover:bg-white/[0.04] transition-all relative overflow-hidden"
+                className="glass-card p-8 flex gap-6 group hover:border-blue-500/40 hover:bg-white/4 transition-all relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
 

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { History, MessageSquare, FileText, BookOpen, HelpCircle, ChevronRight, Clock } from "lucide-react";
 import Link from "next/link";
+import { BackButton } from "@/components/BackButton";
 
 const historySections = [
   {
@@ -59,6 +60,14 @@ const colorClasses: Record<string, { bg: string; border: string; text: string; h
 export default function HistoryPage() {
   return (
     <div className="max-w-5xl mx-auto py-10 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-4"
+      >
+        <BackButton />
+      </motion.div>
+
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}

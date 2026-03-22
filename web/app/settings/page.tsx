@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Settings, Shield, Lock, Eye, FileText, Server, Trash2, Bell, Moon, Sun } from "lucide-react";
 import { useState } from "react";
+import { BackButton } from "@/components/BackButton";
 
 export default function SettingsPage() {
   const [notifications, setNotifications] = useState(true);
@@ -10,6 +11,14 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-4"
+      >
+        <BackButton />
+      </motion.div>
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

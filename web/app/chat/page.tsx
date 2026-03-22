@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Markdown from "@/components/Markdown";
 import { useChat } from "@/hooks/useChat"
+import { BackButton } from "@/components/BackButton";
 
 export default function ChatPage() {
   const { user } = useUser();
@@ -37,6 +38,9 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-140px)] max-w-5xl mx-auto px-4">
       {/* Header Info */}
+      <div className="flex items-center justify-between mb-4">
+        <BackButton />
+      </div>
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <div className="size-12 rounded-2xl bg-linear-to-br from-blue-600 to-purple-600 flex items-center justify-center border border-white/20 shadow-blue-500/10">
@@ -58,13 +62,13 @@ export default function ChatPage() {
       {/* Chat Container */}
       <div className="flex-1 glass-card bg-white/2 border-white/5 flex flex-col overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] rounded-[2.5rem]">
         {/* Messages List */}
-        <div 
+        <div
           ref={scrollRef}
           className="flex-1 overflow-y-auto p-4 md:p-8 space-y-10 scroll-smooth"
         >
           <AnimatePresence mode="popLayout" initial={false}>
             {messages.length === 0 && !isLoading && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="h-full flex flex-col items-center justify-center text-center py-20"
@@ -85,8 +89,8 @@ export default function ChatPage() {
             )}
 
             {messages.map((msg: any, idx: number) => (
-              <motion.div 
-                key={idx} 
+              <motion.div
+                key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className={cn(
@@ -97,8 +101,8 @@ export default function ChatPage() {
                 {/* Avatar */}
                 <div className={cn(
                   "size-10 md:size-12 rounded-2xl flex items-center justify-center shrink-0 border shadow-xl relative z-10 transition-transform duration-300",
-                  msg.role === "user" 
-                    ? "bg-blue-600 border-blue-400/50 shadow-blue-900/40" 
+                  msg.role === "user"
+                    ? "bg-blue-600 border-blue-400/50 shadow-blue-900/40"
                     : "bg-white/10 border-white/10 shadow-black/40 group-hover/msg:scale-110"
                 )}>
                   {msg.role === "user" ? <User className="size-5 md:size-6" /> : <Bot className="size-5 md:size-6" />}
@@ -110,14 +114,14 @@ export default function ChatPage() {
                 {/* Bubble */}
                 <div className={cn(
                   "relative px-4 md:px-8 py-3 md:py-6 rounded-3xl text-sm transition-all duration-300",
-                  msg.role === "user" 
-                    ? "bg-blue-600 text-white rounded-tr-none hover:bg-blue-500 shadow-blue-900/20 max-w-[80%]" 
+                  msg.role === "user"
+                    ? "bg-blue-600 text-white rounded-tr-none hover:bg-blue-500 shadow-blue-900/20 max-w-[80%]"
                     : "bg-white/3 border border-white/5 text-gray-100 rounded-tl-none hover:bg-white/5 hover:border-white/10 flex-1 max-w-[90%]"
                 )}>
                   {msg.role === "ai" ? (
                     <div className="relative">
                       <Markdown content={msg.content} />
-                      <button 
+                      <button
                         onClick={() => copyToClipboard(msg.content)}
                         className="absolute -right-2 top-0 opacity-0 group-hover/msg:opacity-100 p-2 hover:bg-white/10 rounded-lg transition-all text-white/30 hover:text-white"
                         title="Copy message"
@@ -133,7 +137,7 @@ export default function ChatPage() {
             ))}
 
             {isLoading && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="flex gap-6 items-start"
@@ -179,8 +183,8 @@ export default function ChatPage() {
                 </div>
               </div>
             </div>
-            
-            <button 
+
+            <button
               type="submit"
               disabled={isLoading || !input.trim()}
               className="size-16 btn-primary p-0! shadow-blue-900/40 disabled:opacity-20 disabled:scale-100 group transition-all rounded-4xl flex items-center justify-center relative overflow-hidden active:scale-95"

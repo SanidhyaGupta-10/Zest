@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import { FileText, Loader2, Copy, Check, Sparkles, Brain, Zap } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { BackButton } from "@/components/BackButton";
 
 export default function SummaryPage() {
   const { user } = useUser();
@@ -35,6 +36,13 @@ export default function SummaryPage() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
+        className="mb-4"
+      >
+        <BackButton />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
         className="mb-12 text-center"
       >
         <div className="inline-flex p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 mb-6">
@@ -52,7 +60,7 @@ export default function SummaryPage() {
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="glass-card bg-white/[0.02] border-white/5 p-8 relative overflow-hidden group"
+          className="glass-card bg-white/2 border-white/5 p-8 relative overflow-hidden group"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-3xl -z-10" />
 
@@ -100,7 +108,7 @@ export default function SummaryPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="glass-card bg-white/[0.03] border-white/10 p-10 shadow-2xl relative"
+              className="glass-card bg-white/3 border-white/10 p-10 shadow-2xl relative"
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-blue-500 via-purple-500 to-amber-500" />
 

@@ -5,6 +5,7 @@ import { useUser } from "@clerk/nextjs";
 import { Save, Loader2, CheckCircle2, Sparkles, FileText, Upload, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { BackButton } from "@/components/BackButton";
 
 export default function NotesPage() {
   const { user } = useUser();
@@ -14,7 +15,7 @@ export default function NotesPage() {
 
   const handleSave = async () => {
     if (!content.trim() || mutation.isPending) return;
-    
+
     mutation.mutate(content, {
       onSuccess: (res) => {
         setSuccessData({ count: res.data.chunks || 0 });
@@ -26,8 +27,16 @@ export default function NotesPage() {
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-4"
+      >
+        <BackButton />
+      </motion.div>
+
       {/* Header */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="mb-12"
@@ -39,19 +48,19 @@ export default function NotesPage() {
           <h1 className="text-3xl font-black tracking-tight">Ingest Knowledge</h1>
         </div>
         <p className="text-gray-400 font-medium max-w-2xl">
-          Upload or paste your research notes, documents, or raw text. Our AI will 
+          Upload or paste your research notes, documents, or raw text. Our AI will
           process and index them for intelligent retrieval.
         </p>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Editor Area */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="lg:col-span-2 space-y-6"
         >
-          <div className="glass-card bg-white/[0.02] border-white/5 p-1 overflow-hidden group focus-within:border-blue-500/30 transition-colors">
+          <div className="glass-card bg-white/2 border-white/5 p-1 overflow-hidden group focus-within:border-blue-500/30 transition-colors">
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-white/5">
               <div className="flex items-center gap-2">
                 <div className="size-2 rounded-full bg-red-500/40" />
@@ -60,15 +69,15 @@ export default function NotesPage() {
               </div>
               <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em]">Markdown Editor</div>
               <div className="flex gap-2">
-                 <button className="p-1 px-2 rounded bg-white/5 border border-white/5 text-[10px] text-white/30 hover:text-white transition-colors">MD</button>
-                 <button className="p-1 px-2 rounded bg-white/5 border border-white/5 text-[10px] text-white/30 hover:text-white transition-colors">TXT</button>
+                <button className="p-1 px-2 rounded bg-white/5 border border-white/5 text-[10px] text-white/30 hover:text-white transition-colors">MD</button>
+                <button className="p-1 px-2 rounded bg-white/5 border border-white/5 text-[10px] text-white/30 hover:text-white transition-colors">TXT</button>
               </div>
             </div>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Start typing or paste your content here..."
-              className="w-full h-[500px] bg-transparent p-8 focus:outline-none text-gray-200 leading-relaxed font-mono text-sm placeholder:text-white/10"
+              className="w-full h-125 bg-transparent p-8 focus:outline-none text-gray-200 leading-relaxed font-mono text-sm placeholder:text-white/10"
             />
           </div>
 
@@ -90,18 +99,18 @@ export default function NotesPage() {
         </motion.div>
 
         {/* Sidebar Actions */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           className="space-y-6"
         >
-          <div className="glass-card bg-white/[0.03] border-white/10 p-6 shadow-xl relative overflow-hidden group">
+          <div className="glass-card bg-white/3 border-white/10 p-6 shadow-xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-            
+
             <h3 className="text-lg font-black mb-4 flex items-center gap-2">
               Processing Pipeline <Sparkles className="size-4 text-amber-400" />
             </h3>
-            
+
             <div className="space-y-4 mb-8">
               {[
                 "Neural Chunking",
@@ -140,7 +149,7 @@ export default function NotesPage() {
 
           <AnimatePresence>
             {successData && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -151,7 +160,7 @@ export default function NotesPage() {
                   <div>
                     <div className="font-black text-sm uppercase tracking-wider mb-1">Index Updated</div>
                     <p className="text-xs text-emerald-400/70 font-medium">
-                      Knowledge successfully integrated into {successData.count} neural chunks. 
+                      Knowledge successfully integrated into {successData.count} neural chunks.
                       You can now reference this in Chat.
                     </p>
                   </div>
@@ -160,7 +169,7 @@ export default function NotesPage() {
             )}
 
             {mutation.isError && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 shadow-lg"

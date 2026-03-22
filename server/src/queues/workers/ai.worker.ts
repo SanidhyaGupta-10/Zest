@@ -52,7 +52,7 @@ new Worker<JobData>(
 
           const context = await retrieveContext({ userId, query: topic });
           const contextText = context?.length > 0 ? context.join("\n\n") : undefined;
-          
+
           prompt = questionPrompt(topic, contextText);
           result = await generateQuestionsWithFallback(prompt);
 
@@ -60,10 +60,40 @@ new Worker<JobData>(
           let parsedQuestions = result;
           try {
             if (typeof result === "string") {
-              const jsonMatch = result.match(/\[[\s\S]*\]/);
-              parsedQuestions = JSON.parse(jsonMatch ? jsonMatch[0] : result);
+              // Try to extract JSON array from markdown code blocks or raw JSON
+              let jsonStr = result.trim();
+
+              // Remove markdown code blocks if present
+              if (jsonStr.startsWith('```json')) {
+                jsonStr = jsonStr.replace(/```json\n?/, '').replace(/\n?```$/, '');
+              } else if (jsonStr.startsWith('```')) {
+                jsonStr = jsonStr.replace(/```\n?/, '').replace(/\n?```$/, '');
+              }
+
+              // Try to find JSON array in the string
+              const arrayMatch = jsonStr.match(/\[[\s\S]*\]/);
+              if (arrayMatch) {
+                jsonStr = arrayMatch[0];
+              }
+
+              parsedQuestions = JSON.parse(jsonStr);
             }
-          } catch (e) { console.warn("Parse failed for questions", e); }
+          } catch (e) {
+            console.error("Parse failed for questions, result:", result, "Error:", e);
+            // Fallback: create a single question with the raw result
+            parsedQuestions = [{
+              id: 1,
+              question: typeof result === "string" ? result : "Failed to generate questions",
+              difficulty: "Medium",
+              category: "General"
+            }];
+          }
+
+          // Ensure parsedQuestions is an array
+          if (!Array.isArray(parsedQuestions)) {
+            console.warn("Parsed questions is not an array, wrapping:", parsedQuestions);
+            parsedQuestions = [parsedQuestions];
+          }
 
           saved = await prisma.question.create({
             data: { topic, questions: parsedQuestions as any, userId },
