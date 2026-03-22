@@ -49,8 +49,10 @@ new Worker<JobData>(
       switch (type) {
         case AiTaskType.QUESTIONS: {
           if (!topic) throw new Error("Topic required for questions");
+
           const context = await retrieveContext({ userId, query: topic });
           const contextText = context?.length > 0 ? context.join("\n\n") : undefined;
+          
           prompt = questionPrompt(topic, contextText);
           result = await generateQuestionsWithFallback(prompt);
 

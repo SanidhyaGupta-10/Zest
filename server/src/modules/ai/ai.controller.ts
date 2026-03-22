@@ -19,25 +19,41 @@ export const chatController = async (req: AuthenticatedRequest, res: Response) =
     console.log('[ChatController] Request body:', req.body);
     console.log('[ChatController] UserId from auth:', userId);
 
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
-    if (!query) return res.status(400).json({ message: "Query is required" });
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+    if (!query) {
+      res.status(400).json({ message: "Query is required" });
+      return;
+    }
 
     // Handle Chat Session
     let chat = chatId ? await prisma.chat.findUnique({ where: { id: chatId } }) : null;
 
     if (chatId && (!chat || chat.userId !== userId)) {
-      return res.status(404).json({ message: "Chat not found" });
+      res.status(404).json({ 
+        message: "Chat not found" 
+      })
+      return;
     }
 
     if (!chat) {
       chat = await prisma.chat.create({
-        data: { userId, title: query.slice(0, 50) },
+        data: { 
+          userId, 
+          title: query.slice(0, 50) 
+        },
       });
     }
 
     // Save User Message
     await prisma.message.create({
-      data: { chatId: chat.id, role: "user", content: query },
+      data: { 
+        chatId: chat.id, 
+        role: "user", 
+        content: query 
+      },
     });
 
     // Generate Response
@@ -46,7 +62,11 @@ export const chatController = async (req: AuthenticatedRequest, res: Response) =
 
     // Save Assistant Message
     await prisma.message.create({
-      data: { chatId: chat.id, role: "assistant", content: result.answer ?? "No response generated" },
+      data: { 
+        chatId: chat.id, 
+        role: "assistant", 
+        content: result.answer ?? "No response generated" 
+      },
     });
 
     const responsePayload = { chatId: chat.id, answer: result.answer };
@@ -68,20 +88,31 @@ export const taskController = async (req: AuthenticatedRequest, res: Response) =
     const { type, topic, content } = req.body;
     const userId = getAuth(req).userId;
 
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    if (!userId) {
+      res.status(401).json({ 
+        message: "Unauthorized" 
+      });
+      return;
+    }
     if (!type || !Object.values(AiTaskType).includes(type)) {
-      return res.status(400).json({ message: "Valid task type is required" });
+      res.status(400).json({ message: "Valid task type is required" });
+      return;
     }
 
     // Queue the job
-    const job = await aiQueue.add(type.toLowerCase(), {
+    const job = await aiQueue.add(
+      type.toLowerCase(), 
+    {
       type,
       userId,
       topic,
       content
     }, {
       attempts: 3,
-      backoff: { type: "exponential", delay: 1000 },
+      backoff: { 
+        type: "exponential", 
+        delay: 1000 
+      },
     });
 
     return res.json({
@@ -92,7 +123,10 @@ export const taskController = async (req: AuthenticatedRequest, res: Response) =
 
   } catch (error) {
     console.error("Task Controller Error:", error);
-    return res.status(500).json({ success: false, message: "Failed to queue task" });
+    return res.status(500).json({ 
+      success: false, 
+      message: "Failed to queue task" 
+    });
   }
 };
 
@@ -101,7 +135,10 @@ export const taskController = async (req: AuthenticatedRequest, res: Response) =
  */
 export const getChats = async (req: AuthenticatedRequest, res: Response) => {
   const userId = getAuth(req).userId;
-  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+  if (!userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
 
   const chats = await prisma.chat.findMany({
     where: { userId },
@@ -109,8 +146,16 @@ export const getChats = async (req: AuthenticatedRequest, res: Response) => {
     include: { _count: { select: { messages: true } } },
   });
 
-  return res.json({ success: true, chats });
+  return res.json({ 
+    success: true, 
+    chats 
+  });
 };
+
+/**
+ * Get Chat Messages
+ * GET /api/ai/history/chats/:chatId
+ */
 
 export const getChatMessages = async (req: AuthenticatedRequest, res: Response) => {
   const chatId = req.params.chatId as string;
@@ -149,10 +194,16 @@ export const getUserSummaries = async (req: AuthenticatedRequest, res: Response)
       },
     });
 
-    return res.json({ success: true, summaries });
+    return res.json({ 
+      success: true, 
+      summaries 
+    });
   } catch (error: any) {
     console.error("Get Summaries Error:", error);
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
   }
 };
 
@@ -176,7 +227,10 @@ export const getUserNotes = async (req: AuthenticatedRequest, res: Response) => 
       },
     });
 
-    return res.json({ success: true, notes });
+    return res.json({ 
+      success: true, 
+      notes 
+    });
   } catch (error: any) {
     console.error("Get Notes Error:", error);
     return res.status(500).json({ success: false, message: error.message });
@@ -203,10 +257,16 @@ export const getUserQuestions = async (req: AuthenticatedRequest, res: Response)
       },
     });
 
-    return res.json({ success: true, questions });
+    return res.json({ 
+      success: true, 
+      questions 
+    });
   } catch (error: any) {
     console.error("Get Questions Error:", error);
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
   }
 };
 
@@ -214,7 +274,9 @@ export const getUserQuestions = async (req: AuthenticatedRequest, res: Response)
  * Document Ingestion Controller
  * Handles document chunking and embedding storage for RAG
  */
-export const ingestDocumentController = async (req: AuthenticatedRequest, res: Response) => {
+export const ingestDocumentController = async (
+  req: AuthenticatedRequest, res: Response
+) => {
   try {
     const { content } = req.body;
     const userId = getAuth(req).userId;
