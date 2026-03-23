@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MessageSquare, BookOpen, FileText, HelpCircle, LayoutDashboard, Settings, User, X, History } from "lucide-react";
+import { MessageSquare, BookOpen, FileText, HelpCircle, LayoutDashboard, Settings, User, X, History, Github, Instagram, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const menuItems = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -16,23 +16,29 @@ const menuItems = [
   { name: "Questions", href: "/questions", icon: HelpCircle },
 ];
 
-export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }) {
+export default function Sidebar(
+  { isOpen, setIsOpen }: { isOpen?: boolean, setIsOpen?: (val: boolean) => void }
+) {
   const pathname = usePathname();
+  const [showContact, setShowContact] = useState(false);
 
   // Close sidebar on path change (mobile)
   useEffect(() => {
     if (setIsOpen) setIsOpen(false);
   }, [pathname, setIsOpen]);
 
+  const isContactActive = showContact;
+
   const SidebarContent = (
     <div className="h-full flex flex-col pt-24 pb-6 px-4">
       <div className="flex-1 space-y-1.5 overflow-y-auto pr-2">
         {menuItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href && !showContact;
           return (
             <Link
               key={item.name}
               href={item.href}
+              onClick={() => setShowContact(false)}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative",
                 isActive
@@ -58,6 +64,78 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
             </Link>
           );
         })}
+
+        {/* Contact Me Tab */}
+        <button
+          onClick={() => setShowContact(!showContact)}
+          className={cn(
+            "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative",
+            isContactActive
+              ? "bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
+              : "text-gray-400 hover:text-white hover:bg-white/5"
+          )}
+        >
+          <Mail className={cn(
+            "size-5 transition-transform duration-300",
+            isContactActive ? "text-blue-400 scale-110" : "group-hover:text-blue-400 group-hover:scale-110"
+          )} />
+          <span className="font-bold tracking-tight text-sm uppercase">Contact Me</span>
+
+          {isContactActive && (
+            <>
+              <motion.div
+                layoutId="active-nav"
+                className="absolute inset-0 rounded-xl bg-linear-to-r from-blue-500/10 via-transparent to-transparent pointer-events-none"
+              />
+              <div className="ml-auto size-2 rounded-full bg-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.8)]" />
+            </>
+          )}
+        </button>
+
+        {/* Contact Section - Shows when contact tab is active */}
+        <AnimatePresence>
+          {showContact && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-2 mb-4 p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-3">Get in Touch</p>
+                <a
+                  href="https://github.com/SanidhyaGupta-10"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 group/link"
+                >
+                  <div className="flex items-center justify-center size-8 rounded-lg bg-gray-800 group-hover/link:bg-gray-700 transition-colors">
+                    <Github className="size-4" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">GitHub</span>
+                    <span className="text-xs text-gray-500">@SanidhyaGupta-10</span>
+                  </div>
+                </a>
+                <a
+                  href="https://www.instagram.com/sanidhyagupta10/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 group/link"
+                >
+                  <div className="flex items-center justify-center size-8 rounded-lg bg-linear-to-br from-purple-600 via-pink-500 to-orange-400">
+                    <Instagram className="size-4 text-white" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">Instagram</span>
+                    <span className="text-xs text-gray-500">@sanidhyagupta10</span>
+                  </div>
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="pt-6 space-y-1.5 border-t border-white/5 mt-auto">
@@ -100,7 +178,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen?: boolean, setIs
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed left-0 top-0 w-72 h-screen bg-slate-950 border-r border-white/10 z-[60] md:hidden shadow-2xl"
+              className="fixed left-0 top-0 w-72 h-screen bg-slate-950 border-r border-white/10 z-60 md:hidden shadow-2xl"
             >
               <button
                 onClick={() => setIsOpen?.(false)}

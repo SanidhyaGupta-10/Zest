@@ -1,7 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Settings, Shield, Lock, Eye, FileText, Server, Trash2, Bell, Moon, Sun } from "lucide-react";
+import { 
+  Settings, 
+  Shield, 
+  Lock, 
+  Eye, 
+  FileText, 
+  Server, 
+  Trash2, 
+  Bell, 
+  Moon, 
+  Sun 
+} from "lucide-react";
 import { useState } from "react";
 import { BackButton } from "@/components/BackButton";
 
