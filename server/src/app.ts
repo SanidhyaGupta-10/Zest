@@ -19,7 +19,8 @@ app.use(cors({
 app.use((req, res, next) => {
   const auth = req.headers.authorization;
   if (auth) {
-    console.log('[Auth Middleware] Authorization header:', auth.substring(0, 50) + '...');
+    console.log('[Auth Middleware] Authorization header:',
+      auth.substring(0, 50) + '...');
   } else {
     console.log('[Auth Middleware] No Authorization header');
   }
@@ -31,6 +32,10 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("ZEST API is running 🚀");
+});
+
+app.get('/health', (req, res) => {
+  res.send('OK');
 });
 
 app.use('/api/ai', aiRoutes)

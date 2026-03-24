@@ -11,8 +11,8 @@ const db_1 = require("../../../../config/db");
 const storeEmbedding = async ({ userId, content, embedding, }) => {
     const vector = `[${embedding.join(",")}]`;
     await db_1.prisma.$executeRawUnsafe(`
-    INSERT INTO "Document" (id, "userId", content, embedding)
-    VALUES (gen_random_uuid(), $1, $2, $3::vector)
+    INSERT INTO "Document" (id, "userId", content, embedding, "createdAt", "updatedAt")
+    VALUES (gen_random_uuid(), $1, $2, $3::vector, NOW(), NOW())
     `, userId, content, vector);
 };
 exports.storeEmbedding = storeEmbedding;

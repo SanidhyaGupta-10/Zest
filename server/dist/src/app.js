@@ -33,6 +33,9 @@ app.use(express_1.default.json());
 app.get("/", (req, res) => {
     res.send("ZEST API is running 🚀");
 });
+app.get('/health', (req, res) => {
+    res.send('OK');
+});
 app.use('/api/ai', ai_routes_1.default);
 app.use('/api/jobs', jobs_routes_1.default);
 app.use('/api/auth', user_routes_1.default);
