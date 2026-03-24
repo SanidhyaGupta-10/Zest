@@ -11,15 +11,17 @@ if (!dbUrl) {
   throw new Error("DATABASE_URL is not defined in environment variables.");
 }
 
-// Append params safely
+// FIX: Force limit connections to 1 and add pgbouncer for free-tier DBs
+// This prevents the "Closed" error caused by too many open connections.
+const params = "connect_timeout=30&sslmode=require&connection_limit=1&pgbouncer=true";
 const enhancedUrl = dbUrl.includes("?") 
-  ? `${dbUrl}&connect_timeout=30&sslmode=require` 
-  : `${dbUrl}?connect_timeout=30&sslmode=require`;
+  ? `${dbUrl}&${params}` 
+  : `${dbUrl}?${params}`;
 
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: ["query", "info", "warn", "error"],
+    log: ["error", "warn"], // Cleaner logs for production
     datasources: {
       db: { url: enhancedUrl },
     },
@@ -33,6 +35,6 @@ export async function connectDB() {
     console.log("DB connected ✅");
   } catch (err) {
     console.error("❌ Prisma connection error:", err);
-    process.exit(1);
+    // Don't exit(1) here; let Render retry the connection on next request
   }
 }
