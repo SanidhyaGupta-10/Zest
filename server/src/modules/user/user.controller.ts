@@ -1,29 +1,29 @@
-import { clerkClient, getAuth } from "@clerk/express";
+import { clerkClient } from "@clerk/express";
 import { prisma } from "../../config/db";
-import { AuthenticatedRequest } from "../Request.type";
-import type { Response } from "express";
+import { Request, Response } from "express";
 
-export const syncUser = async (req: AuthenticatedRequest, res: Response) => {
+export const syncUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    // 1. Get auth state from Clerk
-    const { userId } = getAuth(req);
-
+    // 1. Get userId from auth middleware
+    const userId = req.user?.userId;
 
     // 2. If Clerk middleware didn't catch it, check the header manually for debugging
     if (!userId) {
       console.error("❌ Auth Error: No userId found in request.");
       console.log("Raw Auth Header present:", !!req.headers.authorization);
       
-      return res.status(401).json({ 
+      res.status(401).json({ 
         error: "Unauthorized",
         message: "No active session found. Ensure your token is valid and system clock is synced."
       });
+      return;
     }
 
     // 3. Fetch fresh data from Clerk (Source of Truth)
     const clerkUser = await clerkClient.users.getUser(userId);
     if (!clerkUser) {
-      return res.status(404).json({ error: "User not found in Clerk" });
+      res.status(404).json({ error: "User not found in Clerk" });
+      return;
     }
     console.log("Clerk user data:", clerkUser);
 
@@ -49,19 +49,21 @@ export const syncUser = async (req: AuthenticatedRequest, res: Response) => {
 
     console.log("✅ Sync Successful for:", email);
 
-    return res.status(200).json({ 
+    res.status(200).json({ 
       success: true,
       user 
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("❌ Error syncing user:", error);
     
     // Check for specific Prisma/Clerk errors
-    const status = error.status || 500;
+    const status = (error instanceof Error && "status" in error) 
+      ? (error as { status: number }).status 
+      : 500;
     res.status(status).json({ 
       error: "Failed to sync user",
-      details: error.message 
+      details: error instanceof Error ? error.message : "Unknown error" 
     });
   }
 };

@@ -1,6 +1,4 @@
-import { Response } from "express";
-import { getAuth } from "@clerk/express";
-import { AuthenticatedRequest } from "../Request.type";
+import { Request, Response } from "express";
 import { aiQueue } from "../../queues/ai.queue";
 import { generateRAGResponse } from "./rag/rag.service";
 import { prisma } from "../../config/db";
@@ -11,10 +9,10 @@ import { ingestDocument } from "./rag/ingestion/ingestion.service";
  * Hybrid RAG Chat Controller
  * Handles user queries with optional RAG context and LLM fallback
  */
-export const chatController = async (req: AuthenticatedRequest, res: Response) => {
+export const chatController = async (req: Request, res: Response): Promise<void> => {
   try {
     const { query, chatId } = req.body;
-    const userId = getAuth(req).userId;
+    const userId = req.user?.userId;
 
     console.log('[ChatController] Request body:', req.body);
     console.log('[ChatController] UserId from auth:', userId);
@@ -34,7 +32,7 @@ export const chatController = async (req: AuthenticatedRequest, res: Response) =
     if (chatId && (!chat || chat.userId !== userId)) {
       res.status(404).json({ 
         message: "Chat not found" 
-      })
+      });
       return;
     }
 
@@ -71,11 +69,13 @@ export const chatController = async (req: AuthenticatedRequest, res: Response) =
 
     const responsePayload = { chatId: chat.id, answer: result.answer };
     console.log('[ChatController] Sending response:', JSON.stringify(responsePayload));
-    return res.json(responsePayload);
+    res.json(responsePayload);
+    return;
 
   } catch (error) {
     console.error("Chat Controller Error:", error);
-    return res.status(500).json({ success: false, message: "Processing failed" });
+    res.status(500).json({ success: false, message: "Processing failed" });
+    return;
   }
 };
 
@@ -83,10 +83,10 @@ export const chatController = async (req: AuthenticatedRequest, res: Response) =
  * Unified Task Controller
  * Handles Summarization, Question Generation, and Note Generation
  */
-export const taskController = async (req: AuthenticatedRequest, res: Response) => {
+export const taskController = async (req: Request, res: Response): Promise<void> => {
   try {
     const { type, topic, content } = req.body;
-    const userId = getAuth(req).userId;
+    const userId = req.user?.userId;
 
     if (!userId) {
       res.status(401).json({ 
@@ -115,26 +115,28 @@ export const taskController = async (req: AuthenticatedRequest, res: Response) =
       },
     });
 
-    return res.json({
+    res.json({
       success: true,
       jobId: job.id,
       message: `${type} task queued successfully`,
     });
+    return;
 
   } catch (error) {
     console.error("Task Controller Error:", error);
-    return res.status(500).json({ 
+    res.status(500).json({ 
       success: false, 
       message: "Failed to queue task" 
     });
+    return;
   }
 };
 
 /**
  * Get History Controllers
  */
-export const getChats = async (req: AuthenticatedRequest, res: Response) => {
-  const userId = getAuth(req).userId;
+export const getChats = async (req: Request, res: Response): Promise<void> => {
+  const userId = req.user?.userId;
   if (!userId) {
     res.status(401).json({ message: "Unauthorized" });
     return;
@@ -146,7 +148,7 @@ export const getChats = async (req: AuthenticatedRequest, res: Response) => {
     include: { _count: { select: { messages: true } } },
   });
 
-  return res.json({ 
+  res.json({ 
     success: true, 
     chats 
   });
@@ -154,13 +156,17 @@ export const getChats = async (req: AuthenticatedRequest, res: Response) => {
 
 /**
  * Get Chat Messages
- * GET /api/ai/history/chats/:chatId
+ * GET /api/ai/chats/:chatId
  */
+export const getChatMessages = async (req: Request, res: Response): Promise<void> => {
+  const chatId = String(req.params.chatId);
+  const userId = req.user?.userId;
 
-export const getChatMessages = async (req: AuthenticatedRequest, res: Response) => {
-  const chatId = req.params.chatId as string;
-  const userId = getAuth(req).userId;
-  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+  if (!userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
 
   const chat = await prisma.chat.findUnique({
     where: { id: chatId },
@@ -168,20 +174,24 @@ export const getChatMessages = async (req: AuthenticatedRequest, res: Response) 
   });
 
   if (!chat || chat.userId !== userId) {
-    return res.status(404).json({ message: "Chat not found" });
+    res.status(404).json({ message: "Chat not found" });
+    return;
   }
 
-  return res.json({ success: true, chat });
+  res.json({ success: true, chat });
 };
 
 /**
  * Get User's Summaries History
  * GET /api/ai/history/summaries
  */
-export const getUserSummaries = async (req: AuthenticatedRequest, res: Response) => {
+export const getUserSummaries = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = getAuth(req).userId;
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
 
     const summaries = await prisma.summary.findMany({
       where: { userId },
@@ -194,15 +204,15 @@ export const getUserSummaries = async (req: AuthenticatedRequest, res: Response)
       },
     });
 
-    return res.json({ 
+    res.json({ 
       success: true, 
       summaries 
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Get Summaries Error:", error);
-    return res.status(500).json({ 
+    res.status(500).json({ 
       success: false, 
-      message: error.message 
+      message: error instanceof Error ? error.message : "Unknown error" 
     });
   }
 };
@@ -211,10 +221,13 @@ export const getUserSummaries = async (req: AuthenticatedRequest, res: Response)
  * Get User's Notes History
  * GET /api/ai/history/notes
  */
-export const getUserNotes = async (req: AuthenticatedRequest, res: Response) => {
+export const getUserNotes = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = getAuth(req).userId;
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
 
     const notes = await prisma.note.findMany({
       where: { userId },
@@ -227,13 +240,16 @@ export const getUserNotes = async (req: AuthenticatedRequest, res: Response) => 
       },
     });
 
-    return res.json({ 
+    res.json({ 
       success: true, 
       notes 
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Get Notes Error:", error);
-    return res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ 
+      success: false, 
+      message: error instanceof Error ? error.message : "Unknown error" 
+    });
   }
 };
 
@@ -241,10 +257,13 @@ export const getUserNotes = async (req: AuthenticatedRequest, res: Response) => 
  * Get User's Questions History
  * GET /api/ai/history/questions
  */
-export const getUserQuestions = async (req: AuthenticatedRequest, res: Response) => {
+export const getUserQuestions = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = getAuth(req).userId;
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
 
     const questions = await prisma.question.findMany({
       where: { userId },
@@ -257,15 +276,15 @@ export const getUserQuestions = async (req: AuthenticatedRequest, res: Response)
       },
     });
 
-    return res.json({ 
+    res.json({ 
       success: true, 
       questions 
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Get Questions Error:", error);
-    return res.status(500).json({ 
+    res.status(500).json({ 
       success: false, 
-      message: error.message 
+      message: error instanceof Error ? error.message : "Unknown error"
     });
   }
 };
@@ -275,15 +294,19 @@ export const getUserQuestions = async (req: AuthenticatedRequest, res: Response)
  * Handles document chunking and embedding storage for RAG
  */
 export const ingestDocumentController = async (
-  req: AuthenticatedRequest, res: Response
-) => {
+  req: Request, res: Response
+): Promise<void> => {
   try {
     const { content } = req.body;
-    const userId = getAuth(req).userId;
+    const userId = req.user?.userId;
 
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    if (!userId) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
     if (!content || typeof content !== "string") {
-      return res.status(400).json({ message: "Content is required and must be a string" });
+      res.status(400).json({ message: "Content is required and must be a string" });
+      return;
     }
 
     console.log(`[IngestDocument] Processing document for user: ${userId}, content length: ${content.length}`);
@@ -296,19 +319,21 @@ export const ingestDocumentController = async (
 
     console.log(`[IngestDocument] Successfully ingested ${result.chunks} chunks`);
 
-    return res.json({
+    res.json({
       success: true,
       chunks: result.chunks,
       message: `Document processed and indexed into ${result.chunks} chunks`,
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error("Ingest Document Controller Error:", error);
-    console.error("Error stack:", error.stack);
-    return res.status(500).json({
+    if (error instanceof Error) {
+      console.error("Error stack:", error.stack);
+    }
+    res.status(500).json({
       success: false,
       message: "Failed to ingest document",
-      error: error.message,
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };

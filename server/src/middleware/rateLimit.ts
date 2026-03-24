@@ -1,24 +1,23 @@
 import { Request, Response, NextFunction } from "express";
-import { getAuth } from "@clerk/express";
 import { redisConnection } from "../queues/connection";
-import { AuthenticatedRequest } from "../modules/Request.type";
 
 const WINDOW = 60; // seconds
 const MAX_REQUESTS = 10; // per user per window
 
 export const rateLimit = async (
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response,
   next: NextFunction
-) => {
+): Promise<void> => {
   try {
-    const userId = getAuth(req).userId;
+    const userId = req.user?.userId;
 
     if (!userId) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         success: false,
         message: "Unauthorized" 
       });
+      return;
     }
 
     const key = `rate:${userId}`;
@@ -31,10 +30,11 @@ export const rateLimit = async (
     res.setHeader("X-RateLimit-Remaining", Math.max(remaining - 1, 0));
 
     if (current && Number(current) >= MAX_REQUESTS) {
-      return res.status(429).json({
+      res.status(429).json({
         success: false,
         message: "Too many requests. Please try again later.",
       });
+      return;
     }
 
     if (!current) {

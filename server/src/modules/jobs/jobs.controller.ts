@@ -1,36 +1,38 @@
-import { Response } from "express";
-import { getAuth } from "@clerk/express";
+import { Request, Response } from "express";
 import { aiQueue } from "../../queues/ai.queue";
-import { AuthenticatedRequest } from "../Request.type";
 
 const queues = [aiQueue];
 
-export const getJobStatus = async (req: AuthenticatedRequest, res: Response) => {
+export const getJobStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const { jobId } = req.params;
-    const userId = getAuth(req).userId;
+    const userId = req.user?.userId;
 
     if (!jobId) {
-      return res.status(400).json({ message: "Job ID is required" });
+      res.status(400).json({ message: "Job ID is required" });
+      return;
     }
 
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      res.status(401).json({ message: "Unauthorized" });
+      return;
     }
 
     // Try to find the job in any queue
     let job;
     for (const queue of queues) {
-      job = await queue.getJob(jobId as string);
+      job = await queue.getJob(String(jobId));
       if (job) break;
     }
 
     if (!job) {
-      return res.status(404).json({ message: "Job not found" });
+      res.status(404).json({ message: "Job not found" });
+      return;
     }
 
     if (job.data.userId !== userId) {
-      return res.status(403).json({ message: "Forbidden" });
+      res.status(403).json({ message: "Forbidden" });
+      return;
     }
 
     // Get job state: waiting | active | completed | failed
@@ -46,7 +48,7 @@ export const getJobStatus = async (req: AuthenticatedRequest, res: Response) => 
       status = "queued"; // waiting | active
     }
 
-    return res.json({
+    res.json({
       status,
       result: job.returnvalue ?? null,
       failedReason: job.failedReason ?? null,
@@ -54,6 +56,6 @@ export const getJobStatus = async (req: AuthenticatedRequest, res: Response) => 
     });
   } catch (err) {
     console.error("Error fetching job status:", err);
-    return res.status(500).json({ message: "Error fetching job status" });
+    res.status(500).json({ message: "Error fetching job status" });
   }
 };
