@@ -11,7 +11,6 @@ const router = express.Router();
  */
 router.post(
     "/chat",
-    requireAuth(),
     rateLimit,
     chatController
 );
@@ -22,7 +21,6 @@ router.post(
  */
 router.post(
     "/tasks",
-    requireAuth(),
     rateLimit,
     taskController
 );
@@ -32,7 +30,6 @@ router.post(
  */
 router.get(
     "/chats",
-    requireAuth(),
     getChats
 );
 
@@ -44,7 +41,6 @@ router.get(
 
 router.get(
     "/chats/:chatId",
-    requireAuth(),
     getChatMessages
 );
 
@@ -53,7 +49,6 @@ router.get(
  */
 router.get(
     "/history/summaries",
-    requireAuth(),
     getUserSummaries
 );
 
@@ -65,7 +60,6 @@ router.get(
 
 router.get(
     "/history/notes",
-    requireAuth(),
     getUserNotes
 );
 
@@ -77,7 +71,6 @@ router.get(
 
 router.get(
     "/history/questions",
-    requireAuth(),
     getUserQuestions
 );
 
@@ -89,7 +82,6 @@ router.get(
  */
 router.post(
     "/ingest",
-    requireAuth(),
     rateLimit,
     ingestDocumentController
 );
