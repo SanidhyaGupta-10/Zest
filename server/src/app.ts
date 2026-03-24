@@ -35,7 +35,10 @@ app.get("/", (req, res) => {
 });
 
 app.get('/health', (req, res) => {
-  res.send('OK');
+  res.json({
+    message: 'ZEST API is OK👍🚀',
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.use('/api/ai', aiRoutes)
