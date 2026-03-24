@@ -2,8 +2,12 @@ import express from 'express';
 import { chatController, taskController, getChats, getChatMessages, ingestDocumentController, getUserSummaries, getUserNotes, getUserQuestions } from './ai.controller';
 import { requireAuth } from '@clerk/express';
 import { rateLimit } from '../../middleware/rateLimit';
+import { attachUser } from '../../middleware/auth';
 
 const router = express.Router();
+
+// Ensure all AI routes are protected and have req.user populated
+router.use(requireAuth(), attachUser);
 
 /**
  * Chat / Ask AI (Hybrid RAG)
