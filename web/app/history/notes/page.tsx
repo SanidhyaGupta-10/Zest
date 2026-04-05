@@ -33,7 +33,7 @@ export default function NotesHistoryPage() {
           setNotes(response.data.notes);
         }
       } catch (err) {
-        console.error("Error fetching notes:", err);
+
       } finally {
         setLoading(false);
       }

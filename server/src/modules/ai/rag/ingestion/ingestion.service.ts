@@ -18,7 +18,7 @@ export const ingestDocument = async ({
   // 1. chunk
   const chunks = chunkText(content);
 
-  console.log("Chunks:", chunks.length);
+
 
   // 2. process each chunk
   for (const chunk of chunks) {

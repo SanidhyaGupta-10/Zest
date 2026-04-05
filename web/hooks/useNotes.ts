@@ -10,11 +10,11 @@ export const useNotes = () => {
       if (!userId) throw new Error("User not authenticated");
 
       const token = await getToken();
-      console.log('[useNotes] Ingesting document, content length:', content.length);
+
 
       // Ingest the document for RAG
       const response = await aiApi.ingestDocument({ content }, token || undefined);
-      console.log('[useNotes] Ingestion response:', response.data);
+
 
       return response;
     },

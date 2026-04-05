@@ -9,8 +9,7 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
 
     // 2. If Clerk middleware didn't catch it, check the header manually for debugging
     if (!userId) {
-      console.error("❌ Auth Error: No userId found in request.");
-      console.log("Raw Auth Header present:", !!req.headers.authorization);
+
       
       res.status(401).json({ 
         error: "Unauthorized",
@@ -25,7 +24,7 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       res.status(404).json({ error: "User not found in Clerk" });
       return;
     }
-    console.log("Clerk user data:", clerkUser);
+
 
     const email = clerkUser.emailAddresses[0]?.emailAddress;
     const name = `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim();
@@ -47,7 +46,7 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-    console.log("✅ Sync Successful for:", email);
+
 
     res.status(200).json({ 
       success: true,
@@ -55,7 +54,7 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
     });
 
   } catch (error) {
-    console.error("❌ Error syncing user:", error);
+
     
     // Check for specific Prisma/Clerk errors
     const status = (error instanceof Error && "status" in error) 

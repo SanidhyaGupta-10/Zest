@@ -18,40 +18,34 @@ export const useChat = () => {
       if (!userId) throw new Error("User not authenticated");
 
       const token = await getToken();
-      console.log('[useChat] Sending query:', query);
-      console.log('[useChat] Token present:', !!token);
-      console.log('[useChat] Token value (first 50 chars):', token ? token.substring(0, 50) + '...' : 'EMPTY');
+
 
       if (!token) {
         throw new Error("Authentication token missing");
       }
 
       const response = await aiApi.chat({ query }, token);
-      console.log('[useChat] Full response object:', response);
-      console.log('[useChat] Response status:', response?.status);
-      console.log('[useChat] Response data:', response?.data);
+
       const data = response.data;
-      console.log('[useChat] Raw data:', JSON.stringify(data));
+
 
       // Handle sync response (direct answer) - check for answer OR result field
       const aiMessage = data?.answer || data?.result || data?.message;
-      console.log('[useChat] Extracted AI message:', aiMessage);
-      console.log('[useChat] Is truthy:', !!aiMessage);
+
 
       if (!aiMessage) {
-        console.error('[useChat] No AI message found in response. Full data:', data);
         throw new Error("No AI response received from server");
       }
 
       return aiMessage;
     },
     onSuccess: (aiMessage: string) => {
-      console.log('[useChat] Setting AI message:', aiMessage);
+
       setMessages((prev) => [...prev, { role: "ai", content: aiMessage }]);
       setError(null);
     },
     onError: (err: Error) => {
-      console.error('[useChat] Error:', err);
+
       setError(err.message || "Failed to get AI response");
     },
   });
