@@ -41,7 +41,7 @@ export default function ChatHistoryPage() {
         }
       } catch (err) {
         setError("Failed to load chat history");
-        console.error("Error fetching chats:", err);
+
       } finally {
         setLoading(false);
       }
@@ -61,7 +61,7 @@ export default function ChatHistoryPage() {
         });
       }
     } catch (err) {
-      console.error("Error fetching messages:", err);
+
     }
   };
 

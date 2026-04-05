@@ -10,11 +10,9 @@ const api = axios.create({
 // Response interceptor: log all responses
 api.interceptors.response.use(
   (response) => {
-    console.log('[API Response]', response.config.url, response.data);
     return response;
   },
   (error) => {
-    console.error('[API Error]', error.config?.url, error.response?.data, error.message);
     return Promise.reject(error);
   }
 );
@@ -30,18 +28,16 @@ export const createApiClient = (token?: string | null) => {
 
   if (token) {
     client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    console.log('[createApiClient] Token set in header:', token.substring(0, 30) + '...');
+
   } else {
-    console.log('[createApiClient] NO TOKEN provided');
+
   }
 
   client.interceptors.response.use(
     (response) => {
-      console.log('[API Response]', response.config.url, response.data);
       return response;
     },
     (error) => {
-      console.error('[API Error]', error.config?.url, error.response?.data, error.message);
       return Promise.reject(error);
     }
   );

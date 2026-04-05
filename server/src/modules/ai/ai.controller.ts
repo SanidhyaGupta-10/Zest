@@ -14,8 +14,7 @@ export const chatController = async (req: Request, res: Response): Promise<void>
     const { query, chatId } = req.body;
     const userId = req.user?.userId;
 
-    console.log('[ChatController] Request body:', req.body);
-    console.log('[ChatController] UserId from auth:', userId);
+
 
     if (!userId) {
       res.status(401).json({ message: "Unauthorized" });
@@ -56,7 +55,7 @@ export const chatController = async (req: Request, res: Response): Promise<void>
 
     // Generate Response
     const result = await generateRAGResponse({ userId, query });
-    console.log('[ChatController] RAG result:', JSON.stringify(result));
+
 
     // Save Assistant Message
     await prisma.message.create({
@@ -68,12 +67,12 @@ export const chatController = async (req: Request, res: Response): Promise<void>
     });
 
     const responsePayload = { chatId: chat.id, answer: result.answer };
-    console.log('[ChatController] Sending response:', JSON.stringify(responsePayload));
+
     res.json(responsePayload);
     return;
 
   } catch (error) {
-    console.error("Chat Controller Error:", error);
+
     res.status(500).json({ success: false, message: "Processing failed" });
     return;
   }
@@ -123,7 +122,7 @@ export const taskController = async (req: Request, res: Response): Promise<void>
     return;
 
   } catch (error) {
-    console.error("Task Controller Error:", error);
+
     res.status(500).json({ 
       success: false, 
       message: "Failed to queue task" 
@@ -209,7 +208,7 @@ export const getUserSummaries = async (req: Request, res: Response): Promise<voi
       summaries 
     });
   } catch (error) {
-    console.error("Get Summaries Error:", error);
+
     res.status(500).json({ 
       success: false, 
       message: error instanceof Error ? error.message : "Unknown error" 
@@ -245,7 +244,7 @@ export const getUserNotes = async (req: Request, res: Response): Promise<void> =
       notes 
     });
   } catch (error) {
-    console.error("Get Notes Error:", error);
+
     res.status(500).json({ 
       success: false, 
       message: error instanceof Error ? error.message : "Unknown error" 
@@ -281,7 +280,7 @@ export const getUserQuestions = async (req: Request, res: Response): Promise<voi
       questions 
     });
   } catch (error) {
-    console.error("Get Questions Error:", error);
+
     res.status(500).json({ 
       success: false, 
       message: error instanceof Error ? error.message : "Unknown error"
@@ -309,7 +308,7 @@ export const ingestDocumentController = async (
       return;
     }
 
-    console.log(`[IngestDocument] Processing document for user: ${userId}, content length: ${content.length}`);
+
 
     // Process the document - chunk and store embeddings
     const result = await ingestDocument({
@@ -317,7 +316,7 @@ export const ingestDocumentController = async (
       content,
     });
 
-    console.log(`[IngestDocument] Successfully ingested ${result.chunks} chunks`);
+
 
     res.json({
       success: true,
@@ -326,10 +325,8 @@ export const ingestDocumentController = async (
     });
 
   } catch (error) {
-    console.error("Ingest Document Controller Error:", error);
-    if (error instanceof Error) {
-      console.error("Error stack:", error.stack);
-    }
+
+
     res.status(500).json({
       success: false,
       message: "Failed to ingest document",

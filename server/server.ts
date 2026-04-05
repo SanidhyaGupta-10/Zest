@@ -8,7 +8,7 @@ async function startServer() {
   await connectDB();
   
   app.listen(PORT, () => {
-    console.log(`🚀 Server ready at http://localhost:${PORT}`);
+
   });
 }
 

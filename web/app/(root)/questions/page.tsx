@@ -25,7 +25,7 @@ export default function QuestionsPage() {
 
     mutation.mutate(topic, {
       onSuccess: (res: any) => {
-        console.log('[handleGenerate] Raw response:', res);
+
 
         // Handle both array of objects and single string fallback
         let qList: Question[] = [];
@@ -75,7 +75,7 @@ export default function QuestionsPage() {
           }
         }
 
-        console.log('[handleGenerate] Parsed questions:', qList);
+
         setQuestions(qList);
       }
     });

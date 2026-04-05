@@ -38,7 +38,7 @@ export default function QuestionsHistoryPage() {
           setQuestions(response.data.questions);
         }
       } catch (err) {
-        console.error("Error fetching questions:", err);
+
       } finally {
         setLoading(false);
       }

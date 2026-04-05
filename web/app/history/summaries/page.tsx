@@ -33,7 +33,7 @@ export default function SummariesHistoryPage() {
           setSummaries(response.data.summaries);
         }
       } catch (err) {
-        console.error("Error fetching summaries:", err);
+
       } finally {
         setLoading(false);
       }
