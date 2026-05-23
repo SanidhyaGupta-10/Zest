@@ -6,6 +6,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BackButton } from "@/components/BackButton";
 import { QuestionItem } from "@/types/history.types";
+import { cn } from "@/lib/utils";
 
 /**
  * @web\app\(root)\questions\page.tsx
@@ -15,6 +16,8 @@ import { QuestionItem } from "@/types/history.types";
 export default function QuestionsPage() {
   const [topic, setTopic] = useState("");
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
+  const [revealedHints, setRevealedHints] = useState<Record<number, boolean>>({});
+  const [revealedSolutions, setRevealedSolutions] = useState<Record<number, boolean>>({});
   const mutation = useQuestions();
 
   const handleGenerate = async () => {
@@ -23,8 +26,18 @@ export default function QuestionsPage() {
     mutation.mutate(topic, {
       onSuccess: (qList: QuestionItem[]) => {
         setQuestions(qList);
+        setRevealedHints({});
+        setRevealedSolutions({});
       }
     });
+  };
+
+  const toggleHint = (id: number) => {
+    setRevealedHints(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const toggleSolution = (id: number) => {
+    setRevealedSolutions(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   const containerVariants = {
@@ -162,13 +175,55 @@ export default function QuestionsPage() {
                     {q.question}
                   </p>
 
-                  <div className="flex items-center gap-6 pt-3">
-                    <button className="text-[10px] font-black text-white/20 uppercase tracking-widest hover:text-blue-400 transition-colors flex items-center gap-1.5">
-                      Reveal Hint
-                    </button>
-                    <button className="text-[10px] font-black text-white/20 uppercase tracking-widest hover:text-emerald-400 transition-colors flex items-center gap-1.5">
-                      Check Solution
-                    </button>
+                  <div className="space-y-4 pt-3">
+                    <div className="flex items-center gap-6">
+                      <button 
+                        onClick={() => toggleHint(idx)}
+                        className={cn(
+                          "text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-1.5",
+                          revealedHints[idx] ? "text-blue-400" : "text-white/20 hover:text-blue-400"
+                        )}
+                      >
+                        {revealedHints[idx] ? "Hide Hint" : "Reveal Hint"}
+                      </button>
+                      <button 
+                        onClick={() => toggleSolution(idx)}
+                        className={cn(
+                          "text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-1.5",
+                          revealedSolutions[idx] ? "text-emerald-400" : "text-white/20 hover:text-emerald-400"
+                        )}
+                      >
+                        {revealedSolutions[idx] ? "Hide Solution" : "Check Solution"}
+                      </button>
+                    </div>
+
+                    <AnimatePresence>
+                      {revealedHints[idx] && q.hint && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="bg-blue-500/5 border-l-2 border-blue-500/30 p-3 rounded-r-lg"
+                        >
+                          <p className="text-sm text-blue-300/80 italic font-medium">
+                            💡 {q.hint}
+                          </p>
+                        </motion.div>
+                      )}
+
+                      {revealedSolutions[idx] && q.solution && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="bg-emerald-500/5 border-l-2 border-emerald-500/30 p-3 rounded-r-lg"
+                        >
+                          <p className="text-sm text-emerald-300/80 font-bold">
+                            ✅ {q.solution}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
 
