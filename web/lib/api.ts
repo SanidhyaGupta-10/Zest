@@ -1,43 +1,28 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
+import { 
+  ChatRequest, 
+  IngestRequest, 
+  CreateTaskRequest 
+} from '@/types/api.types';
 
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
-// Response interceptor: log all responses
-api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Helper to create an axios instance with a custom token
-export const createApiClient = (token?: string | null) => {
+/**
+ * Creates an axios instance with an optional Bearer token.
+ */
+export const createApiClient = (token?: string | null): AxiosInstance => {
   const client = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api',
+    baseURL: BASE_URL,
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
 
-  if (token) {
-    client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-  } else {
-
-  }
-
   client.interceptors.response.use(
-    (response) => {
-      return response;
-    },
+    (response) => response,
     (error) => {
+      console.error('[API Error]:', error.response?.data || error.message);
       return Promise.reject(error);
     }
   );
@@ -45,70 +30,47 @@ export const createApiClient = (token?: string | null) => {
   return client;
 };
 
-export enum AiTaskType {
-  QUESTIONS = "QUESTIONS",
-  SUMMARY = "SUMMARY",
-  NOTES = "NOTES",
-}
+// Default instance for non-auth or general use
+const api = createApiClient();
 
+/**
+ * Auth-related API calls
+ */
 export const authApi = {
-  syncUser: (token: string) => {
-    return api.post('/auth/sync', {}, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-  }
+  syncUser: (token: string) => 
+    createApiClient(token).post('/auth/sync', {}),
 };
 
+/**
+ * AI-related API calls
+ */
 export const aiApi = {
-  // Chat - returns { chatId, answer } directly (sync)
-  chat: (data: { query: string; chatId?: string }, token?: string) => {
-    const client = token ? createApiClient(token) : api;
-    return client.post('/ai/chat', data);
-  },
+  chat: (data: ChatRequest, token?: string) => 
+    createApiClient(token).post('/ai/chat', data),
 
-  // Document Ingestion
-  ingestDocument: (data: { content: string }, token?: string) => {
-    const client = token ? createApiClient(token) : api;
-    return client.post('/ai/ingest', data);
-  },
+  ingestDocument: (data: IngestRequest, token?: string) => 
+    createApiClient(token).post('/ai/ingest', data),
 
-  // History
-  getChats: (token?: string) => {
-    const client = token ? createApiClient(token) : api;
-    return client.get('/ai/chats');
-  },
-  getChatMessages: (chatId: string, token?: string) => {
-    const client = token ? createApiClient(token) : api;
-    return client.get(`/ai/chats/${chatId}`);
-  },
+  getChats: (token?: string) => 
+    createApiClient(token).get('/ai/chats'),
 
-  // User Content History
-  getUserSummaries: (token?: string) => {
-    const client = token ? createApiClient(token) : api;
-    return client.get('/ai/history/summaries');
-  },
-  getUserNotes: (token?: string) => {
-    const client = token ? createApiClient(token) : api;
-    return client.get('/ai/history/notes');
-  },
-  getUserQuestions: (token?: string) => {
-    const client = token ? createApiClient(token) : api;
-    return client.get('/ai/history/questions');
-  },
+  getChatMessages: (chatId: string, token?: string) => 
+    createApiClient(token).get(`/ai/chats/${chatId}`),
 
-  // Unified Tasks - returns { jobId } (async)
-  createTask: (data: { type: AiTaskType; topic?: string; content?: string }, token?: string) => {
-    const client = token ? createApiClient(token) : api;
-    return client.post('/ai/tasks', data);
-  },
+  getUserSummaries: (token?: string) => 
+    createApiClient(token).get('/ai/history/summaries'),
 
-  // Job Status - returns { status, result }
-  getJobStatus: (jobId: string, token?: string) => {
-    const client = token ? createApiClient(token) : api;
-    return client.get(`/jobs/${jobId}`);
-  },
+  getUserNotes: (token?: string) => 
+    createApiClient(token).get('/ai/history/notes'),
+
+  getUserQuestions: (token?: string) => 
+    createApiClient(token).get('/ai/history/questions'),
+
+  createTask: (data: CreateTaskRequest, token?: string) => 
+    createApiClient(token).post('/ai/tasks', data),
+
+  getJobStatus: (jobId: string, token?: string) => 
+    createApiClient(token).get(`/jobs/${jobId}`),
 };
 
 export default api;

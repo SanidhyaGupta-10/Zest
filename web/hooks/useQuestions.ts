@@ -1,5 +1,5 @@
 import { useAiTask } from "./useAiTask";
-import { AiTaskType } from "@/lib/api";
+import { AiTaskType } from "@/types/api.types";
 
 export const useQuestions = () => {
   const taskMutation = useAiTask();

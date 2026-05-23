@@ -1,4 +1,4 @@
-import { AiTaskType } from "@/lib/api";
+import { AiTaskType } from "@/types/api.types";
 
 // useAiTask
 export type TaskInput = {
