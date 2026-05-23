@@ -5,7 +5,7 @@ import {
   CreateTaskRequest 
 } from '@/types/api.types';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 /**
  * @web\lib\api.ts createApiClient
@@ -42,7 +42,7 @@ export const authApi = {
    * @access private
    */
   syncUser: (token: string) => 
-    createApiClient(token).post('/auth/sync', {}),
+    createApiClient(token).post('/api/auth/sync', {}),
 };
 
 export const aiApi = {
@@ -52,7 +52,7 @@ export const aiApi = {
    * @access private
    */
   chat: (data: ChatRequest, token?: string) => 
-    createApiClient(token).post('/ai/chat', data),
+    createApiClient(token).post('/api/ai/chat', data),
 
   /**
    * @web\lib\api.ts POST /api/ai/ingest
@@ -60,7 +60,7 @@ export const aiApi = {
    * @access private
    */
   ingestDocument: (data: IngestRequest, token?: string) => 
-    createApiClient(token).post('/ai/ingest', data),
+    createApiClient(token).post('/api/ai/ingest', data),
 
   /**
    * @web\lib\api.ts GET /api/ai/chats
@@ -68,7 +68,7 @@ export const aiApi = {
    * @access private
    */
   getChats: (token?: string) => 
-    createApiClient(token).get('/ai/chats'),
+    createApiClient(token).get('/api/ai/chats'),
 
   /**
    * @web\lib\api.ts GET /api/ai/chats/:chatId
@@ -76,7 +76,7 @@ export const aiApi = {
    * @access private
    */
   getChatMessages: (chatId: string, token?: string) => 
-    createApiClient(token).get(`/ai/chats/${chatId}`),
+    createApiClient(token).get(`/api/ai/chats/${chatId}`),
 
   /**
    * @web\lib\api.ts GET /api/ai/history/summaries
@@ -84,7 +84,7 @@ export const aiApi = {
    * @access private
    */
   getUserSummaries: (token?: string) => 
-    createApiClient(token).get('/ai/history/summaries'),
+    createApiClient(token).get('/api/ai/history/summaries'),
 
   /**
    * @web\lib\api.ts GET /api/ai/history/notes
@@ -92,7 +92,7 @@ export const aiApi = {
    * @access private
    */
   getUserNotes: (token?: string) => 
-    createApiClient(token).get('/ai/history/notes'),
+    createApiClient(token).get('/api/ai/history/notes'),
 
   /**
    * @web\lib\api.ts GET /api/ai/history/questions
@@ -100,7 +100,7 @@ export const aiApi = {
    * @access private
    */
   getUserQuestions: (token?: string) => 
-    createApiClient(token).get('/ai/history/questions'),
+    createApiClient(token).get('/api/ai/history/questions'),
 
   /**
    * @web\lib\api.ts POST /api/ai/tasks
@@ -108,7 +108,7 @@ export const aiApi = {
    * @access private
    */
   createTask: (data: CreateTaskRequest, token?: string) => 
-    createApiClient(token).post('/ai/tasks', data),
+    createApiClient(token).post('/api/ai/tasks', data),
 
   /**
    * @web\lib\api.ts GET /api/jobs/:jobId
@@ -116,7 +116,7 @@ export const aiApi = {
    * @access private
    */
   getJobStatus: (jobId: string, token?: string) => 
-    createApiClient(token).get(`/jobs/${jobId}`),
+    createApiClient(token).get(`/api/jobs/${jobId}`),
 };
 
 export default api;

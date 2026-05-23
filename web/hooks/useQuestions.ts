@@ -28,16 +28,21 @@ export const useQuestions = () => {
     }
 
     if (Array.isArray(parsedRes)) {
-      qList = parsedRes.map((item, idx) => {
+      qList = (parsedRes as any[]).map((item, idx) => {
+        if (!item) return { id: idx + 1, question: "Malformed question", difficulty: 'Medium', category: 'General' };
+        
         if (typeof item === 'string') {
           return { id: idx + 1, question: item, difficulty: 'Medium', category: 'General' };
         }
-        const qItem = item as Record<string, unknown>;
+        
+        const qItem = item as Record<string, any>;
         return {
-          id: (qItem.id as number) || idx + 1,
-          question: (qItem.question as string) || String(item),
-          difficulty: (qItem.difficulty as string) || 'Medium',
-          category: (qItem.category as string) || 'General'
+          id: Number(qItem.id) || idx + 1,
+          question: String(qItem.question || item),
+          difficulty: String(qItem.difficulty || 'Medium'),
+          category: String(qItem.category || 'General'),
+          hint: qItem.hint ? String(qItem.hint) : undefined,
+          solution: qItem.solution ? String(qItem.solution) : undefined
         };
       });
     } else if (typeof parsedRes === 'string') {
@@ -46,13 +51,21 @@ export const useQuestions = () => {
       const obj = parsedRes as Record<string, unknown>;
       const questionsArray = obj.questions || obj.result || obj;
       if (Array.isArray(questionsArray)) {
-        qList = questionsArray.map((item: unknown, idx: number) => {
-          const qItem = item as Record<string, unknown>;
+        qList = (questionsArray as any[]).map((item, idx) => {
+          if (!item) return { id: idx + 1, question: "Malformed question", difficulty: 'Medium', category: 'General' };
+          
+          if (typeof item === 'string') {
+            return { id: idx + 1, question: item, difficulty: 'Medium', category: 'General' };
+          }
+          
+          const qItem = item as Record<string, any>;
           return {
-            id: (qItem.id as number) || idx + 1,
-            question: (qItem.question as string) || String(item),
-            difficulty: (qItem.difficulty as string) || 'Medium',
-            category: (qItem.category as string) || 'General'
+            id: Number(qItem.id) || idx + 1,
+            question: String(qItem.question || item),
+            difficulty: String(qItem.difficulty || 'Medium'),
+            category: String(qItem.category || 'General'),
+            hint: qItem.hint ? String(qItem.hint) : undefined,
+            solution: qItem.solution ? String(qItem.solution) : undefined
           };
         });
       }

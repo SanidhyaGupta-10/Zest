@@ -7,12 +7,16 @@ import { AxiosError } from "axios";
 /**
  * Shared polling function with token support to check on AI job status.
  */
-export const pollJobStatus = async (jobId: string, token?: string | null): Promise<unknown> => {
+export const pollJobStatus = async (
+  jobId: string, 
+  getToken?: () => Promise<string | null>
+): Promise<unknown> => {
   let attempts = 0;
   const maxAttempts = 60; // Increased timeout to 60s for complex tasks
 
   while (attempts < maxAttempts) {
     try {
+      const token = getToken ? await getToken() : null;
       const response = await aiApi.getJobStatus(jobId, token || undefined);
       const data = response.data;
 
@@ -29,7 +33,8 @@ export const pollJobStatus = async (jobId: string, token?: string | null): Promi
       attempts++;
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || error.message || "Failed to poll job status");
+        const serverMessage = error.response?.data?.message || error.response?.data?.error;
+        throw new Error(serverMessage || error.message || "Failed to poll job status");
       }
       if (error instanceof Error) {
         throw error;
@@ -66,7 +71,7 @@ export const useAiTask = (): UseMutationResult<unknown, Error, TaskInput> => {
       }
 
       // Poll until completion and return result
-      return await pollJobStatus(data.jobId, token);
+      return await pollJobStatus(data.jobId, getToken);
     },
   });
 };

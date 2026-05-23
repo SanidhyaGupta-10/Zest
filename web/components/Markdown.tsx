@@ -38,7 +38,7 @@ const CodeBlock = ({ inline, className, children, ...props }: ComponentPropsWith
         </button>
       </div>
       <SyntaxHighlighter
-        style={vscDarkPlus}
+        style={vscDarkPlus as any}
         language={match?.[1] || "text"}
         PreTag="div"
         className="bg-black/40! m-0! p-4! text-sm! scrollbar-thin"

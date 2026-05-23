@@ -16,7 +16,9 @@ Each object in the array must follow this structure:
   "id": number,
   "question": "string",
   "difficulty": "Easy" | "Medium" | "Hard",
-  "category": "string"
+  "category": "string",
+  "hint": "string",
+  "solution": "string"
 }
 
 ### Constraints

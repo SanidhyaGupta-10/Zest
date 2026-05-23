@@ -27,6 +27,8 @@ export interface QuestionItem {
   question: string;
   difficulty: string;
   category: string;
+  hint?: string;
+  solution?: string;
 }
 
 export interface Question {
