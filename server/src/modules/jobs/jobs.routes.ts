@@ -10,6 +10,7 @@ const router = express.Router();
  * @description Poll the status and result of a long-running background job.
  * @access private
  */
+
 router.get("/:jobId", requireAuth(), attachUser, getJobStatus);
 
 export default router;

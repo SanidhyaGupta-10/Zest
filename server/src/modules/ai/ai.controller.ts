@@ -10,6 +10,7 @@ import { ingestDocument } from "./rag/ingestion/ingestion.service.js";
  * @description Hybrid RAG Chat Controller. Handles user queries with context retrieval and LLM fallback.
  * @access private
  */
+
 export const chatController = async (req: Request, res: Response): Promise<void> => {
   try {
     const { query, chatId } = req.body;
@@ -81,6 +82,7 @@ export const chatController = async (req: Request, res: Response): Promise<void>
  * @description Unified Task Controller. Handles Summarization, Question Generation, and Note Generation via BullMQ.
  * @access private
  */
+
 export const taskController = async (req: Request, res: Response): Promise<void> => {
   try {
     const { type, topic, content } = req.body;
@@ -134,6 +136,7 @@ export const taskController = async (req: Request, res: Response): Promise<void>
  * @description Retrieve all chat sessions for the authenticated user.
  * @access private
  */
+
 export const getChats = async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.userId;
   if (!userId) {
@@ -158,6 +161,7 @@ export const getChats = async (req: Request, res: Response): Promise<void> => {
  * @description Retrieve all messages for a specific chat session.
  * @access private
  */
+
 export const getChatMessages = async (req: Request, res: Response): Promise<void> => {
   const chatId = String(req.params.chatId);
   const userId = req.user?.userId;
@@ -186,6 +190,7 @@ export const getChatMessages = async (req: Request, res: Response): Promise<void
  * @description Retrieve the history of all generated summaries for the user.
  * @access private
  */
+
 export const getUserSummaries = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
@@ -222,6 +227,7 @@ export const getUserSummaries = async (req: Request, res: Response): Promise<voi
  * @description Retrieve the history of all generated study notes for the user.
  * @access private
  */
+
 export const getUserNotes = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
@@ -258,6 +264,7 @@ export const getUserNotes = async (req: Request, res: Response): Promise<void> =
  * @description Retrieve the history of all generated quiz questions for the user.
  * @access private
  */
+
 export const getUserQuestions = async (req: Request, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId;
@@ -294,6 +301,7 @@ export const getUserQuestions = async (req: Request, res: Response): Promise<voi
  * @description Document Ingestion Controller. Handles chunking and embedding storage for RAG.
  * @access private
  */
+
 export const ingestDocumentController = async (
   req: Request, res: Response
 ): Promise<void> => {

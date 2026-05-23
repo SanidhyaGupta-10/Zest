@@ -1,45 +1,41 @@
-import { bytezProvider } from "./bytez.provider.js";
-import { deepseekProvider } from "./deepseek.provider.js";
-import { geminiProvider } from "./gemini.provider.js";
 import { groqProvider } from "./groq.provider.js";
+import { geminiProvider } from "./gemini.provider.js";
+import { deepseekProvider } from "./deepseek.provider.js";
+import { bytezProvider } from "./bytez.provider.js";
 import { openaiProvider } from "./openai.provider.js";
 /**
+ * 🧱 PROVIDER REGISTRY
+ * Priority-ordered list of LLM providers.
+ * High speed (Groq) first, reliable (Gemini) second, others as fallbacks.
+ */
+const providers = [
+    groqProvider,
+    geminiProvider,
+    deepseekProvider,
+    bytezProvider,
+    openaiProvider,
+];
+/**
  * @server\src\providers\llm.router.ts generateWithFallback
- * @description Multi-provider fallback ensures responses are under 2-3 seconds by prioritizing fast models (Groq).
+ * @description Attempts to generate a response using a list of providers in order.
+ * If one fails, it automatically tries the next one.
  * @access internal
  */
 export const generateWithFallback = async (fullPrompt) => {
-    // 1️⃣ HIGH SPEED: Groq (Llama 3.3 70B)
-    try {
-        return await groqProvider.generate(fullPrompt);
+    for (const provider of providers) {
+        try {
+            // console.log(`[LLM Router] Trying ${provider.name}...`);
+            const result = await provider.generate(fullPrompt);
+            if (result && result.trim().length > 0) {
+                return result;
+            }
+        }
+        catch (err) {
+            console.error(`[LLM Router] ${provider.name} failed:`, err.message || err);
+            // Continue to next provider...
+        }
     }
-    catch (err) {
-    }
-    // 2️⃣ RELIABLE: Gemini
-    try {
-        return await geminiProvider.generate(fullPrompt);
-    }
-    catch (err) {
-    }
-    // 3️⃣ ALTERNATIVE: DeepSeek
-    try {
-        return await deepseekProvider.generate(fullPrompt);
-    }
-    catch (err) {
-    }
-    // 4️⃣ ALTERNATIVE: Bytez
-    try {
-        return await bytezProvider.generate(fullPrompt);
-    }
-    catch (error) {
-    }
-    // 5️⃣ LAST RESORT: OpenAI (Costly/Slower fallback)
-    try {
-        return await openaiProvider.generate(fullPrompt);
-    }
-    catch (err) {
-    }
-    // Final static fallback - never return empty
+    // 🚨 FINAL FALLBACK
     return "I'm sorry, I'm currently unable to process this request due to technical difficulties. Please try a simpler query or try again in a few minutes.";
 };
 // Aliases for compatibility with different modules

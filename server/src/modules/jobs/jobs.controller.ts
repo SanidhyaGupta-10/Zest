@@ -9,6 +9,7 @@ const queues = [aiQueue];
  * @description Poll the status and result of a long-running background job from the AI queue.
  * @access private
  */
+
 export const getJobStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const { jobId } = req.params;

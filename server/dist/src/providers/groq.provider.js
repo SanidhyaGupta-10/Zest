@@ -1,16 +1,21 @@
 import Groq from "groq-sdk";
 const key = process.env.GROQ_API_KEY;
-const groq = new Groq({ apiKey: key });
+/**
+ * @server\src\providers\groq.provider.ts
+ * @description Groq Provider (High speed Llama 3.3)
+ */
 export const groqProvider = {
+    name: "Groq",
     generate: async (fullPrompt) => {
+        if (!key)
+            throw new Error("GROQ_API_KEY missing");
+        const groq = new Groq({ apiKey: key });
         const response = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile", // Fixed: Uses current high-speed model
+            model: "llama-3.3-70b-versatile",
             messages: [
                 { role: "system", content: "You are a helpful assistant." },
                 { role: "user", content: fullPrompt }
             ],
-            // Use json_object only if your prompt explicitly asks for JSON
-            // response_format: { type: "json_object" },
         });
         return response.choices[0]?.message?.content || "";
     },

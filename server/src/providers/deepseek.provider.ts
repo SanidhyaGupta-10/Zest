@@ -1,23 +1,29 @@
 import OpenAI from "openai";
+import { LLMProvider } from "./types/provider.types.js";
 
-const key = process.env.DEEPSEEK_API_KEY!;
+const key = process.env.DEEPSEEK_API_KEY;
 
-// Pointing to DeepSeek's endpoint
-export const deepseek = new OpenAI({
-  baseURL: 'https://api.deepseek.com',
-  apiKey: key,
-});
+/**
+ * @server\src\providers\deepseek.provider.ts
+ * @description DeepSeek Provider (V3)
+ */
+export const deepseekProvider: LLMProvider = {
+  name: "DeepSeek",
 
-export const deepseekProvider = {
-  generate: async (fullPrompt: string) => {
+  generate: async (fullPrompt: string): Promise<string> => {
+    if (!key) throw new Error("DEEPSEEK_API_KEY missing");
+    
+    const deepseek = new OpenAI({
+      baseURL: 'https://api.deepseek.com',
+      apiKey: key,
+    });
+    
     const response = await deepseek.chat.completions.create({
-      model: "deepseek-chat", // DeepSeek-V3
+      model: "deepseek-chat",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
         { role: "user", content: fullPrompt }
       ],
-      // DeepSeek supports json_object too
-      response_format: { type: "json_object" }, 
     });
 
     return response.choices[0]?.message?.content || "";

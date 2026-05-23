@@ -7,6 +7,7 @@ import { generateEmbedding } from "./embedder.js";
  * @description Ingests a document by chunking the text, generating embeddings for each chunk, and storing them in the vector database.
  * @access private
  */
+
 export const ingestDocument = async ({
   userId,
   content,

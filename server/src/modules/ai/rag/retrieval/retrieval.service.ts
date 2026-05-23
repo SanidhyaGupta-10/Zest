@@ -6,6 +6,7 @@ import { searchSimilar } from "../store/vector.store.js";
  * @description Retrieves relevant context for a given query by generating an embedding and searching the vector database.
  * @access private
  */
+
 export const retrieveContext = async ({
   userId,
   query,

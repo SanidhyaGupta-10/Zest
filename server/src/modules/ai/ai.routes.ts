@@ -25,6 +25,7 @@ router.use(requireAuth(), attachUser);
  * @description Chat / Ask AI (Hybrid RAG). Processes user query with context retrieval.
  * @access private
  */
+
 router.post(
     "/chat",
     rateLimit,
@@ -36,6 +37,7 @@ router.post(
  * @description Unified AI Tasks (Questions, Summary, Notes). Creates a background job.
  * @access private
  */
+
 router.post(
     "/tasks",
     rateLimit,
@@ -47,6 +49,7 @@ router.post(
  * @description Retrieve all chat sessions for the authenticated user.
  * @access private
  */
+
 router.get(
     "/chats",
     getChats
@@ -57,6 +60,7 @@ router.get(
  * @description Retrieve all messages for a specific chat session.
  * @access private
  */
+
 router.get(
     "/chats/:chatId",
     getChatMessages
@@ -67,6 +71,7 @@ router.get(
  * @description Retrieve the history of all generated summaries for the user.
  * @access private
  */
+
 router.get(
     "/history/summaries",
     getUserSummaries
@@ -77,6 +82,7 @@ router.get(
  * @description Retrieve the history of all generated study notes for the user.
  * @access private
  */
+
 router.get(
     "/history/notes",
     getUserNotes
@@ -87,6 +93,7 @@ router.get(
  * @description Retrieve the history of all generated quiz questions for the user.
  * @access private
  */
+
 router.get(
     "/history/questions",
     getUserQuestions
@@ -97,6 +104,7 @@ router.get(
  * @description Document Ingestion. Chunks content and stores embeddings for RAG.
  * @access private
  */
+
 router.post(
     "/ingest",
     rateLimit,
