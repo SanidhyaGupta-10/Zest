@@ -1,7 +1,7 @@
 import express from "express";
-import aiRoutes from './modules/ai/ai.routes'
-import jobRoutes from './modules/jobs/jobs.routes'
-import userRoutes from './modules/user/user.routes'
+import aiRoutes from './modules/ai/ai.routes.js'
+import jobRoutes from './modules/jobs/jobs.routes.js'
+import userRoutes from './modules/user/user.routes.js'
 import { clerkMiddleware } from "@clerk/express";
 import cors from 'cors'
 const app = express();
@@ -9,7 +9,10 @@ const app = express();
 app.set('strict routing', false);
 
 app.use(cors({
-  origin: "https://zest-delta.vercel.app",
+  origin: [
+    "http://localhost:3000",
+    "https://zest-delta.vercel.app"
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]

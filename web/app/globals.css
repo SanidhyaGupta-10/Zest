@@ -120,3 +120,66 @@
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
+
+/* ─── Chat UI Animations ─────────────────────────────── */
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes typingDot {
+  0%, 60%, 100% { transform: translateY(0);    opacity: 0.4; }
+  30%            { transform: translateY(-6px); opacity: 1;   }
+}
+
+@keyframes sidebarSlideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+.chat-message-enter {
+  animation: slideInUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.chat-welcome-enter {
+  animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-blue, #3b82f6);
+  animation: typingDot 1.2s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Chat sidebar transition */
+.chat-sidebar {
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.25s ease,
+              transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Nav sidebar collapse transition */
+.nav-sidebar {
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Auto-resize textarea */
+.auto-resize-textarea {
+  field-sizing: content;
+  min-height: 52px;
+  max-height: 160px;
+  overflow-y: auto;
+  resize: none;
+}
+

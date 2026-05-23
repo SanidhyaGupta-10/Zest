@@ -32,9 +32,9 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 export async function connectDB() {
   try {
     await prisma.$connect();
-
+    console.log('✅ Database connected successfully');
   } catch (err) {
-
+    console.error('❌ Database connection failed:', err);
     // Don't exit(1) here; let Render retry the connection on next request
   }
 }
