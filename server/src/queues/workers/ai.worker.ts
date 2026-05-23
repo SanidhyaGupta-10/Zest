@@ -1,13 +1,13 @@
 import "dotenv/config";
 import { Worker, Job } from "bullmq";
-import { redisConnection } from "../connection";
-import { getCache, setCache } from "../../utils/cache";
-import { generateQuestionsWithFallback } from "../../providers/llm.router";
-import { prisma } from "../../config/db";
-import { retrieveContext } from "../../modules/ai/rag/retrieval/retrieval.service";
-import { questionPrompt } from "../../modules/ai/prompts/question.prompt";
-import { notesPrompt } from "../../modules/ai/prompts/notes.prompt";
-import { summaryPrompt } from "../../modules/ai/prompts/summary.prompt";
+import { redisConnection } from "../connection.js";
+import { getCache, setCache } from "../../utils/cache.js";
+import { generateQuestionsWithFallback } from "../../providers/llm.router.js";
+import { prisma } from "../../config/db.js";
+import { retrieveContext } from "../../modules/ai/rag/retrieval/retrieval.service.js";
+import { questionPrompt } from "../../modules/ai/prompts/question.prompt.js";
+import { notesPrompt } from "../../modules/ai/prompts/notes.prompt.js";
+import { summaryPrompt } from "../../modules/ai/prompts/summary.prompt.js";
 
 export enum AiTaskType {
   QUESTIONS = "QUESTIONS",

@@ -1,6 +1,6 @@
-import { storeEmbedding } from "../store/vector.store";
-import { chunkText } from "./chunker";
-import { generateEmbedding } from "./embedder";
+import { storeEmbedding } from "../store/vector.store.js";
+import { chunkText } from "./chunker.js";
+import { generateEmbedding } from "./embedder.js";
 
 // What it is doing?
 // => It is ingesting the document into the database.

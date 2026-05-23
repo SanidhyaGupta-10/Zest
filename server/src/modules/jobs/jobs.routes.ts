@@ -1,7 +1,7 @@
 import express from "express";
-import { getJobStatus } from "./jobs.controller";
+import { getJobStatus } from "./jobs.controller.js";
 import { requireAuth } from "@clerk/express";
-import { attachUser } from "../../middleware/auth";
+import { attachUser } from "../../middleware/auth.js";
 
 const router = express.Router();
 

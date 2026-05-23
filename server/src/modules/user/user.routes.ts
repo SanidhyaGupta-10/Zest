@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { requireAuth } from "@clerk/express";
-import { syncUser } from "./user.controller";
-import { attachUser } from "../../middleware/auth";
+import { syncUser } from "./user.controller.js";
+import { attachUser } from "../../middleware/auth.js";
 
 const router = Router();
 

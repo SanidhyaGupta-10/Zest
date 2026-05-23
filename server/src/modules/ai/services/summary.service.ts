@@ -1,5 +1,5 @@
-import { generateFromLLM } from "../../../providers/llm.router";
-import { summaryPrompt } from "../prompts/summary.prompt";
+import { generateFromLLM } from "../../../providers/llm.router.js";
+import { summaryPrompt } from "../prompts/summary.prompt.js";
 
 export const generateSummary = async (content: string) => {
   const prompt = summaryPrompt(content);

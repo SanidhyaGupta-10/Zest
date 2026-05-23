@@ -1,5 +1,5 @@
-import { generateFromLLM } from "../../../providers/llm.router";
-import { retrieveContext } from "./retrieval/retrieval.service";
+import { generateFromLLM } from "../../../providers/llm.router.js";
+import { retrieveContext } from "./retrieval/retrieval.service.js";
 
 /**
  * Hybrid RAG + LLM Fallback Service

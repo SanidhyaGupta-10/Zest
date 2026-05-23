@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { aiQueue } from "../../queues/ai.queue";
+import { aiQueue } from "../../queues/ai.queue.js";
+
 
 const queues = [aiQueue];
 

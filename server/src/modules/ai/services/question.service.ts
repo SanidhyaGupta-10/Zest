@@ -1,5 +1,6 @@
-import { generateFromLLM } from "../../../providers/llm.router";
-import { questionPrompt } from "../prompts/question.prompt";
+import { generateFromLLM } from "../../../providers/llm.router.js";
+import { questionPrompt } from "../prompts/question.prompt.js";
+
 
 export const generateQuestions = async (topic: string) => {
   const prompt = questionPrompt(topic);

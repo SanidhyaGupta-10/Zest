@@ -1,8 +1,19 @@
 import express from 'express';
-import { chatController, taskController, getChats, getChatMessages, ingestDocumentController, getUserSummaries, getUserNotes, getUserQuestions } from './ai.controller';
+import {
+    chatController,
+    taskController,
+    getChats,
+    getChatMessages,
+    ingestDocumentController,
+    getUserSummaries,
+    getUserNotes,
+    getUserQuestions
+    } from './ai.controller.js';
+
 import { requireAuth } from '@clerk/express';
-import { rateLimit } from '../../middleware/rateLimit';
-import { attachUser } from '../../middleware/auth';
+import { rateLimit } from '../../middleware/rateLimit.js';
+import { attachUser } from '../../middleware/auth.js';
+
 
 const router = express.Router();
 

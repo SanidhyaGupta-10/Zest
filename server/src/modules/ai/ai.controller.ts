@@ -1,14 +1,15 @@
 import { Request, Response } from "express";
-import { aiQueue } from "../../queues/ai.queue";
-import { generateRAGResponse } from "./rag/rag.service";
-import { prisma } from "../../config/db";
-import { AiTaskType } from "../../queues/workers/ai.worker";
-import { ingestDocument } from "./rag/ingestion/ingestion.service";
+import { aiQueue } from "../../queues/ai.queue.js";
+import { generateRAGResponse } from "./rag/rag.service.js";
+import { prisma } from "../../config/db.js";
+import { AiTaskType } from "../../queues/workers/ai.worker.js";
+import { ingestDocument } from "./rag/ingestion/ingestion.service.js";
 
 /**
  * Hybrid RAG Chat Controller
  * Handles user queries with optional RAG context and LLM fallback
  */
+
 export const chatController = async (req: Request, res: Response): Promise<void> => {
   try {
     const { query, chatId } = req.body;

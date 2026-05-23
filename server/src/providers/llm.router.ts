@@ -1,8 +1,8 @@
-import { bytezProvider } from "./bytez.provider";
-import { deepseekProvider } from "./deepseek.provider";
-import { geminiProvider } from "./gemini.provider";
-import { groqProvider } from "./groq.provider";
-import { openaiProvider } from "./openai.provider";
+import { bytezProvider } from "./bytez.provider.js";
+import { deepseekProvider } from "./deepseek.provider.js";
+import { geminiProvider } from "./gemini.provider.js";
+import { groqProvider } from "./groq.provider.js";
+import { openaiProvider } from "./openai.provider.js";
 
 // Multi-provider fallback ensures responses are under 2-3 seconds by prioritizing fast models (Groq)
 export const generateWithFallback = async (fullPrompt: string) => {

@@ -1,4 +1,4 @@
-import { prisma } from "../../../../config/db";
+
 
 // 🔥 Store embedding
 // What it is doing?
@@ -6,6 +6,8 @@ import { prisma } from "../../../../config/db";
 // => The embedding is a vector of numbers that represents the content.
 // => The embedding is stored in the database as a vector.
 // => The vector is stored in the database as a vector.
+
+import { prisma } from "../../../../config/db.js";
 
 export const storeEmbedding = async ({
   userId,

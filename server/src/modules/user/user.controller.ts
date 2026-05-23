@@ -1,5 +1,5 @@
 import { clerkClient } from "@clerk/express";
-import { prisma } from "../../config/db";
+import { prisma } from "../../config/db.js";
 import { Request, Response } from "express";
 
 export const syncUser = async (req: Request, res: Response): Promise<void> => {

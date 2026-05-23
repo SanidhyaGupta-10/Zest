@@ -1,5 +1,5 @@
-import { generateEmbedding } from "../ingestion/embedder";
-import { searchSimilar } from "../store/vector.store";
+import { generateEmbedding } from "../ingestion/embedder.js";
+import { searchSimilar } from "../store/vector.store.js";
 
 export const retrieveContext = async ({
   userId,
