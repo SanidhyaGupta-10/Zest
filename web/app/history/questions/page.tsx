@@ -1,39 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useHistory } from "@/hooks/useHistory";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HelpCircle, Clock, ChevronRight, ArrowLeft, Copy, Check, Sparkles } from "lucide-react";
-import { aiApi } from "@/lib/api";
 
 import { Question, QuestionItem } from "@/types/history.types";
 
 export default function QuestionsHistoryPage() {
-  const { userId, getToken } = useAuth();
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const { questions: questionsQuery } = useHistory();
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchQuestions = async () => {
-      try {
-        setLoading(true);
-        const token = await getToken();
-        const response = await aiApi.getUserQuestions(token || undefined);
-        if (response.data?.questions) {
-          setQuestions(response.data.questions);
-        }
-      } catch (err) {
-
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchQuestions();
-  }, [userId, getToken]);
+  const questions = questionsQuery.data || [];
+  const loading = questionsQuery.isLoading;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

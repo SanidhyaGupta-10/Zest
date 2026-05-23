@@ -1,41 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useHistory } from "@/hooks/useHistory";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileText, Clock, ChevronRight, ArrowLeft, Copy, Check } from "lucide-react";
-import { aiApi } from "@/lib/api";
 import Markdown from "@/components/Markdown";
 
 import { Summary } from "@/types/history.types";
 
 export default function SummariesHistoryPage() {
-  const { userId, getToken } = useAuth();
-  const [summaries, setSummaries] = useState<Summary[]>([]);
+  const { summaries: summariesQuery } = useHistory();
   const [selectedSummary, setSelectedSummary] = useState<Summary | null>(null);
-  const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchSummaries = async () => {
-      try {
-        setLoading(true);
-        const token = await getToken();
-        const response = await aiApi.getUserSummaries(token || undefined);
-        if (response.data?.summaries) {
-          setSummaries(response.data.summaries);
-        }
-      } catch (err) {
-
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSummaries();
-  }, [userId, getToken]);
+  const summaries = summariesQuery.data || [];
+  const loading = summariesQuery.isLoading;
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

@@ -17,8 +17,8 @@ export default function NotesPage() {
     if (!content.trim() || mutation.isPending) return;
 
     mutation.mutate(content, {
-      onSuccess: (res) => {
-        setSuccessData({ count: res.data.chunks || 0 });
+      onSuccess: (chunks) => {
+        setSuccessData({ count: chunks });
         setContent("");
         setTimeout(() => setSuccessData(null), 5000);
       }

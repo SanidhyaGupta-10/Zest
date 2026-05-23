@@ -16,58 +16,7 @@ export default function QuestionsPage() {
     if (!topic.trim() || mutation.isPending) return;
 
     mutation.mutate(topic, {
-      onSuccess: (res: any) => {
-
-
-        // Handle both array of objects and single string fallback
-        let qList: QuestionItem[] = [];
-
-        // If res is a string, try to parse it as JSON
-        let parsedRes = res;
-        if (typeof res === 'string') {
-          try {
-            // Try to extract JSON array from string
-            const jsonMatch = res.match(/\[[\s\S]*\]/);
-            if (jsonMatch) {
-              parsedRes = JSON.parse(jsonMatch[0]);
-            } else {
-              parsedRes = JSON.parse(res);
-            }
-          } catch (e) {
-            // Not valid JSON, treat as single question text
-            parsedRes = res;
-          }
-        }
-
-        if (Array.isArray(parsedRes)) {
-          qList = parsedRes.map((item, idx) => {
-            if (typeof item === 'string') {
-              return { id: idx + 1, question: item, difficulty: 'Medium', category: 'General' };
-            }
-            // Ensure the item has the required question field
-            return {
-              id: item.id || idx + 1,
-              question: item.question || String(item),
-              difficulty: item.difficulty || 'Medium',
-              category: item.category || 'General'
-            };
-          });
-        } else if (typeof parsedRes === 'string') {
-          qList = [{ id: 1, question: parsedRes, difficulty: 'Medium', category: 'General' }];
-        } else if (parsedRes && typeof parsedRes === 'object') {
-          // Handle object with questions property (from history API)
-          const questionsArray = parsedRes.questions || parsedRes.result || parsedRes;
-          if (Array.isArray(questionsArray)) {
-            qList = questionsArray.map((item: any, idx: number) => ({
-              id: item.id || idx + 1,
-              question: item.question || String(item),
-              difficulty: item.difficulty || 'Medium',
-              category: item.category || 'General'
-            }));
-          }
-        }
-
-
+      onSuccess: (qList: QuestionItem[]) => {
         setQuestions(qList);
       }
     });

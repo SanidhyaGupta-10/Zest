@@ -18,8 +18,8 @@ export default function SummaryPage() {
     if (!text.trim() || mutation.isPending) return;
 
     mutation.mutate(text, {
-      onSuccess: (res: string | string[]) => {
-        setSummary(typeof res === 'string' ? res : JSON.stringify(res));
+      onSuccess: (res: string) => {
+        setSummary(res);
       }
     });
   };

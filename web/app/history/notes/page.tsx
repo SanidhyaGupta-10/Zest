@@ -1,41 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useHistory } from "@/hooks/useHistory";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, Clock, ChevronRight, ArrowLeft, Copy, Check } from "lucide-react";
-import { aiApi } from "@/lib/api";
 import Markdown from "@/components/Markdown";
 
 import { Note } from "@/types/history.types";
 
 export default function NotesHistoryPage() {
-  const { userId, getToken } = useAuth();
-  const [notes, setNotes] = useState<Note[]>([]);
+  const { notes: notesQuery } = useHistory();
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-  const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!userId) return;
+  const notes = notesQuery.data || [];
+  const loading = notesQuery.isLoading;
 
-    const fetchNotes = async () => {
-      try {
-        setLoading(true);
-        const token = await getToken();
-        const response = await aiApi.getUserNotes(token || undefined);
-        if (response.data?.notes) {
-          setNotes(response.data.notes);
-        }
-      } catch (err) {
-
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNotes();
-  }, [userId, getToken]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

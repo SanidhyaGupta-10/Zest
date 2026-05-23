@@ -1,53 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useHistory } from "@/hooks/useHistory";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, ChevronRight, Clock, Bot, User, ArrowLeft } from "lucide-react";
-import { aiApi } from "@/lib/api";
 import Markdown from "@/components/Markdown";
 
 import { Chat, Message } from "@/types/history.types";
 
 export default function ChatHistoryPage() {
-  const { userId, getToken } = useAuth();
-  const [chats, setChats] = useState<Chat[]>([]);
+  const { chats: chatsQuery, getChatMessages } = useHistory();
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchChats = async () => {
-      try {
-        setLoading(true);
-        const token = await getToken();
-        const response = await aiApi.getChats(token || undefined);
-        if (response.data?.chats) {
-          setChats(response.data.chats);
-        }
-      } catch (err) {
-        setError("Failed to load chat history");
-
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchChats();
-  }, [userId, getToken]);
+  const chats = chatsQuery.data || [];
+  const loading = chatsQuery.isLoading;
+  const error = chatsQuery.error ? "Failed to load chat history" : null;
 
   const handleChatClick = async (chat: Chat) => {
     try {
-      const token = await getToken();
-      const response = await aiApi.getChatMessages(chat.id, token || undefined);
-      if (response.data?.chat?.messages) {
-        setSelectedChat({
-          ...chat,
-          messages: response.data.chat.messages,
-        });
-      }
+      const messages = await getChatMessages(chat.id);
+      setSelectedChat({
+        ...chat,
+        messages,
+      });
     } catch (err) {
 
     }
