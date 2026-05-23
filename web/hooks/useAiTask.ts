@@ -1,12 +1,7 @@
 import { useAuth } from "@clerk/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { aiApi, AiTaskType } from "@/lib/api";
-
-type TaskInput = {
-  type: AiTaskType;
-  topic?: string;
-  content?: string;
-};
+import { TaskInput } from "@/types/hooks.types";
 
 // Shared polling function with token support
 export const pollJobStatus = async (jobId: string, token?: string | null): Promise<string> => {

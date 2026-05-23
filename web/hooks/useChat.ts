@@ -2,11 +2,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { aiApi } from "@/lib/api";
 import { useState, useCallback } from "react";
-
-export type Message = {
-  role: "user" | "ai";
-  content: string;
-};
+import { Message } from "@/types/hooks.types";
 
 export const useChat = () => {
   const { userId, getToken } = useAuth();

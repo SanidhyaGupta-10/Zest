@@ -10,6 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import { SidebarProps } from "@/types/components.types";
 
 const menuItems = [
   { name: "Dashboard", href: "/",          icon: LayoutDashboard },
@@ -19,14 +20,6 @@ const menuItems = [
   { name: "Summary",   href: "/summary",    icon: FileText       },
   { name: "Questions", href: "/questions",  icon: HelpCircle     },
 ];
-
-interface SidebarProps {
-  isOpen?:        boolean;
-  setIsOpen?:     (val: boolean) => void;
-  isCollapsed?:   boolean;
-  setIsCollapsed?: (val: boolean) => void;
-  sidebarWidth?:  string;
-}
 
 export default function Sidebar({
   isOpen,

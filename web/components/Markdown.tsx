@@ -4,10 +4,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
-
-interface MarkdownProps {
-  content: string;
-}
+import { MarkdownProps } from "@/types/components.types";
 
 export default function Markdown({ content }: MarkdownProps) {
   return (

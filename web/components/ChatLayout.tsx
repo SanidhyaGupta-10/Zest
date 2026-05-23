@@ -11,15 +11,7 @@ import { cn } from "@/lib/utils";
 import Markdown from "@/components/Markdown";
 import { useChat } from "@/hooks/useChat";
 import { useUser } from "@clerk/nextjs";
-
-/* ─── Types ───────────────────────────────────────────── */
-interface ChatSession {
-  id: string;
-  title: string;
-  preview: string;
-  time: string;
-  active?: boolean;
-}
+import { ChatSession } from "@/types/components.types";
 
 /* ─── Mock chat history (replace with real API later) ─── */
 const MOCK_HISTORY: ChatSession[] = [
