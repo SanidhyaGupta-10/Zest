@@ -1,20 +1,35 @@
 "use client";
 
+/**
+ * @file QuestionsHistoryPage.tsx
+ * @description Renders a history of AI-generated quiz questions categorized by topic.
+ * Allows users to review questions from past study sessions.
+ */
+
 import { useHistory } from "@/hooks/useHistory";
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HelpCircle, Clock, ChevronRight, ArrowLeft, Copy, Check, Sparkles } from "lucide-react";
 
 import { Question, QuestionItem } from "@/types/history.types";
 
+/**
+ * Component for exploring past quiz question generations.
+ * Uses memoization and query caching for near-instant navigation.
+ */
 export default function QuestionsHistoryPage() {
   const { questions: questionsQuery } = useHistory();
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
 
-  const questions = questionsQuery.data || [];
+  // Memoize questions list for performance
+  const questions = useMemo(() => questionsQuery.data || [], [questionsQuery.data]);
   const loading = questionsQuery.isLoading;
 
-  const formatDate = (dateString: string) => {
+  /**
+   * Formats date for the history list.
+   * @param {string} dateString - ISO date.
+   */
+  const formatDate = useCallback((dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       month: "short",
@@ -22,7 +37,7 @@ export default function QuestionsHistoryPage() {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
+  }, []);
 
   if (loading) {
     return (

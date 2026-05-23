@@ -1,22 +1,39 @@
 "use client";
 
+/**
+ * @file SummariesHistoryPage.tsx
+ * @description Renders the user's history of generated summaries.
+ * Provides a list view and a detailed view to compare original content with the summary.
+ */
+
 import { useHistory } from "@/hooks/useHistory";
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileText, Clock, ChevronRight, ArrowLeft, Copy, Check } from "lucide-react";
 import Markdown from "@/components/Markdown";
 
 import { Summary } from "@/types/history.types";
 
+/**
+ * @web\app\history\summaries\page.tsx
+ * @description View user's summary generation history.
+ * @flow useHistory -> summariesQuery -> AnimatePresence list -> detailed view
+ */
 export default function SummariesHistoryPage() {
   const { summaries: summariesQuery } = useHistory();
   const [selectedSummary, setSelectedSummary] = useState<Summary | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const summaries = summariesQuery.data || [];
+  // Memoize data to prevent redundant calculations
+  const summaries = useMemo(() => summariesQuery.data || [], [summariesQuery.data]);
   const loading = summariesQuery.isLoading;
 
-  const formatDate = (dateString: string) => {
+  /**
+   * Formats an ISO date string for display.
+   * @param {string} dateString - The date string from the server.
+   * @returns {string} Formatted date.
+   */
+  const formatDate = useCallback((dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       month: "short",
@@ -24,18 +41,27 @@ export default function SummariesHistoryPage() {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
+  }, []);
 
-  const copyToClipboard = async (text: string, id: string) => {
+  /**
+   * Utility to copy text to clipboard with feedback state.
+   */
+  const copyToClipboard = useCallback(async (text: string, id: string): Promise<void> => {
     await navigator.clipboard.writeText(text);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
-  };
+  }, []);
 
-  const truncateText = (text: string, maxLength: number = 100) => {
+  /**
+   * Shortens long text for the preview list.
+   * @param {string} text - The text to truncate.
+   * @param {number} maxLength - Maximum allowed length.
+   * @returns {string} Truncated text with ellipsis.
+   */
+  const truncateText = useCallback((text: string, maxLength: number = 100): string => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
-  };
+  }, []);
 
   if (loading) {
     return (
@@ -171,7 +197,7 @@ export default function SummariesHistoryPage() {
       ) : (
         <div className="space-y-4">
           <AnimatePresence>
-            {summaries.map((summary, idx) => (
+            {summaries.map((summary: Summary, idx: number) => (
               <motion.div
                 key={summary.id}
                 initial={{ opacity: 0, y: 20 }}

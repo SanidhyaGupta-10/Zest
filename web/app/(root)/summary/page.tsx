@@ -1,14 +1,12 @@
 "use client";
 
 import { useSummary } from "@/hooks/useSummary";
-import { useUser } from "@clerk/nextjs";
-import { FileText, Loader2, Copy, Check, Sparkles, Brain, Zap } from "lucide-react";
+import { FileText, Loader2, Copy, Check, Sparkles, Brain, Zap, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BackButton } from "@/components/BackButton";
 
 export default function SummaryPage() {
-  const { user } = useUser();
   const [text, setText] = useState("");
   const [summary, setSummary] = useState("");
   const [copied, setCopied] = useState(false);

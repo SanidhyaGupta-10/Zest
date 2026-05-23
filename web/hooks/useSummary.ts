@@ -1,7 +1,16 @@
 import { useAiTask } from "./useAiTask";
 import { AiTaskType } from "@/types/api.types";
+import { UseMutationResult } from "@tanstack/react-query";
 
-export const useSummary = () => {
+/**
+ * @web\hooks\useSummary.ts
+ * @description Hook to generate a summary of provided content.
+ * @flow useAiTask -> parseSummary -> returns consistent string
+ */
+export const useSummary = (): Omit<UseMutationResult<string, Error, string>, 'mutate' | 'mutateAsync'> & {
+  mutate: (content: string, options?: any) => void;
+  mutateAsync: (content: string, options?: any) => Promise<string>;
+} => {
   const taskMutation = useAiTask();
 
   const parseSummary = (res: any): string => {

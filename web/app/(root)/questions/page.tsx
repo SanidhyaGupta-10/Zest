@@ -7,6 +7,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BackButton } from "@/components/BackButton";
 import { QuestionItem } from "@/types/history.types";
 
+/**
+ * @web\app\(root)\questions\page.tsx
+ * @description Interface for generating quiz questions from study topics.
+ * @flow Topic Input -> useQuestions hook -> AI Generation -> structured list
+ */
 export default function QuestionsPage() {
   const [topic, setTopic] = useState("");
   const [questions, setQuestions] = useState<QuestionItem[]>([]);

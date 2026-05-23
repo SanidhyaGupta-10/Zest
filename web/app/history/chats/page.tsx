@@ -1,22 +1,37 @@
 "use client";
 
+/**
+ * @file ChatHistoryPage.tsx
+ * @description Renders a history of AI chat conversations.
+ * Allows users to review and drill down into past messages.
+ */
+
 import { useHistory } from "@/hooks/useHistory";
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, ChevronRight, Clock, Bot, User, ArrowLeft } from "lucide-react";
 import Markdown from "@/components/Markdown";
 
 import { Chat, Message } from "@/types/history.types";
 
+/**
+ * Component for viewing past chat history.
+ * Optimized with useCallback and useMemo for high performance.
+ */
 export default function ChatHistoryPage() {
   const { chats: chatsQuery, getChatMessages } = useHistory();
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
 
-  const chats = chatsQuery.data || [];
+  // Memoize chats list to prevent unnecessary re-renders
+  const chats = useMemo(() => chatsQuery.data || [], [chatsQuery.data]);
   const loading = chatsQuery.isLoading;
   const error = chatsQuery.error ? "Failed to load chat history" : null;
 
-  const handleChatClick = async (chat: Chat) => {
+  /**
+   * Fetches messages for a specific chat and updates the view.
+   * @param {Chat} chat - The chat session to load.
+   */
+  const handleChatClick = useCallback(async (chat: Chat): Promise<void> => {
     try {
       const messages = await getChatMessages(chat.id);
       setSelectedChat({
@@ -24,11 +39,15 @@ export default function ChatHistoryPage() {
         messages,
       });
     } catch (err) {
-
+      console.error("Error loading chat messages:", err);
     }
-  };
+  }, [getChatMessages]);
 
-  const formatDate = (dateString: string) => {
+  /**
+   * Formats date for display in the chat list.
+   * @param {string} dateString - ISO date string.
+   */
+  const formatDate = useCallback((dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       month: "short",
@@ -36,7 +55,7 @@ export default function ChatHistoryPage() {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
+  }, []);
 
   if (loading) {
     return (

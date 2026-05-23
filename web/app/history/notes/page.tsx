@@ -1,23 +1,39 @@
 "use client";
 
+/**
+ * @file NotesHistoryPage.tsx
+ * @description Renders the user's history of generated study notes.
+ * Includes a list view and a detailed markdown view for individual notes.
+ */
+
 import { useHistory } from "@/hooks/useHistory";
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BookOpen, Clock, ChevronRight, ArrowLeft, Copy, Check } from "lucide-react";
 import Markdown from "@/components/Markdown";
 
 import { Note } from "@/types/history.types";
 
+/**
+ * @web\app\history\notes\page.tsx
+ * @description View user's study notes history.
+ * @flow useHistory -> notesQuery -> AnimatePresence list -> detailed view
+ */
 export default function NotesHistoryPage() {
   const { notes: notesQuery } = useHistory();
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const notes = notesQuery.data || [];
+  // Memoize notes data to prevent unnecessary re-renders
+  const notes = useMemo(() => notesQuery.data || [], [notesQuery.data]);
   const loading = notesQuery.isLoading;
 
-
-  const formatDate = (dateString: string) => {
+  /**
+   * Formats a raw date string into a user-friendly locale string.
+   * @param {string} dateString - ISO date string from the server.
+   * @returns {string} Formatted date (e.g., "May 23, 10:30 AM").
+   */
+  const formatDate = useCallback((dateString: string): string => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       month: "short",
@@ -25,13 +41,22 @@ export default function NotesHistoryPage() {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
+  }, []);
 
-  const copyToClipboard = async (text: string, id: string) => {
-    await navigator.clipboard.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
+  /**
+   * Copies text content to the clipboard and provides visual feedback.
+   * @param {string} text - The content to copy.
+   * @param {string} id - Unique identifier for the copied item to track feedback state.
+   */
+  const copyToClipboard = useCallback(async (text: string, id: string): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy text:", err);
+    }
+  }, []);
 
   if (loading) {
     return (
@@ -137,7 +162,7 @@ export default function NotesHistoryPage() {
       ) : (
         <div className="space-y-4">
           <AnimatePresence>
-            {notes.map((note, idx) => (
+            {notes.map((note: Note, idx: number) => (
               <motion.div
                 key={note.id}
                 initial={{ opacity: 0, y: 20 }}

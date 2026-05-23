@@ -1,16 +1,19 @@
 "use client";
 
 import { useNotes } from "@/hooks/useNotes";
-import { useUser } from "@clerk/nextjs";
-import { Save, Loader2, CheckCircle2, Sparkles, FileText, Upload, ShieldCheck } from "lucide-react";
+import { Save, Loader2, CheckCircle2, Sparkles, FileText, Upload, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BackButton } from "@/components/BackButton";
 
+/**
+ * @web\app\(root)\notes\page.tsx
+ * @description Main interface for document ingestion and RAG indexing.
+ * @flow User input -> useNotes hook -> Server Ingestion -> Success feedback
+ */
 export default function NotesPage() {
-  const { user } = useUser();
   const [content, setContent] = useState("");
-  const [successData, setSuccessData] = useState<{ count: number } | null>(null);
+  const [successCount, setSuccessCount] = useState<number | null>(null);
   const mutation = useNotes();
 
   const handleSave = async () => {
@@ -18,9 +21,9 @@ export default function NotesPage() {
 
     mutation.mutate(content, {
       onSuccess: (chunks) => {
-        setSuccessData({ count: chunks });
+        setSuccessCount(chunks);
         setContent("");
-        setTimeout(() => setSuccessData(null), 5000);
+        setTimeout(() => setSuccessCount(null), 5000);
       }
     });
   };
@@ -45,11 +48,11 @@ export default function NotesPage() {
           <div className="p-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
             <FileText className="size-5 text-blue-400" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight">Ingest Knowledge</h1>
+          <h1 className="text-3xl font-black tracking-tight uppercase">Ingest Knowledge</h1>
         </div>
-        <p className="text-gray-400 font-medium max-w-2xl">
+        <p className="text-gray-400 font-medium max-w-2xl leading-relaxed">
           Upload or paste your research notes, documents, or raw text. Our AI will
-          process and index them for intelligent retrieval.
+          process, chunk, and index them for intelligent retrieval in your neural workspace.
         </p>
       </motion.div>
 
@@ -77,7 +80,7 @@ export default function NotesPage() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Start typing or paste your content here..."
-              className="w-full h-125 bg-transparent p-8 focus:outline-none text-gray-200 leading-relaxed font-mono text-sm placeholder:text-white/10"
+              className="w-full h-[500px] bg-transparent p-8 focus:outline-none text-gray-200 leading-relaxed font-mono text-sm placeholder:text-white/10 resize-none scrollbar-none"
             />
           </div>
 
@@ -107,8 +110,8 @@ export default function NotesPage() {
           <div className="glass-card bg-white/3 border-white/10 p-6 shadow-xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
 
-            <h3 className="text-lg font-black mb-4 flex items-center gap-2">
-              Processing Pipeline <Sparkles className="size-4 text-amber-400" />
+            <h3 className="text-lg font-black mb-4 flex items-center gap-2 uppercase tracking-tighter">
+              Pipeline <Sparkles className="size-4 text-amber-400" />
             </h3>
 
             <div className="space-y-4 mb-8">
@@ -130,7 +133,7 @@ export default function NotesPage() {
             <button
               onClick={handleSave}
               disabled={mutation.isPending || !content.trim()}
-              className="w-full btn-primary py-4 text-sm font-bold shadow-blue-900/40 relative overflow-hidden group/btn disabled:opacity-30"
+              className="w-full btn-primary py-4 text-sm font-bold shadow-blue-900/40 relative overflow-hidden group/btn disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
               {mutation.isPending ? (
@@ -147,9 +150,10 @@ export default function NotesPage() {
             </button>
           </div>
 
-          <AnimatePresence>
-            {successData && (
+          <AnimatePresence mode="wait">
+            {successCount !== null && (
               <motion.div
+                key="success"
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -159,8 +163,8 @@ export default function NotesPage() {
                   <CheckCircle2 className="size-5 shrink-0 mt-0.5" />
                   <div>
                     <div className="font-black text-sm uppercase tracking-wider mb-1">Index Updated</div>
-                    <p className="text-xs text-emerald-400/70 font-medium">
-                      Knowledge successfully integrated into {successData.count} neural chunks.
+                    <p className="text-xs text-emerald-400/70 font-medium leading-relaxed">
+                      Knowledge successfully integrated into {successCount} neural chunks.
                       You can now reference this in Chat.
                     </p>
                   </div>
@@ -170,16 +174,23 @@ export default function NotesPage() {
 
             {mutation.isError && (
               <motion.div
+                key="error"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
                 className="p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 shadow-lg"
               >
-                <div className="flex items-center gap-2 font-black text-xs uppercase tracking-widest mb-1">
-                  Pipeline Error
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="size-5 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="font-black text-sm uppercase tracking-widest mb-1">
+                      Pipeline Error
+                    </div>
+                    <p className="text-xs font-medium text-red-400/70 leading-relaxed">
+                      {mutation.error?.message || "Integration failed. Please check your connection or text format."}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs font-medium text-red-400/70">
-                  Integration failed. Please check your connection or text format.
-                </p>
               </motion.div>
             )}
           </AnimatePresence>

@@ -1,8 +1,17 @@
 import { useAiTask } from "./useAiTask";
 import { AiTaskType } from "@/types/api.types";
 import { QuestionItem } from "@/types/history.types";
+import { UseMutationResult } from "@tanstack/react-query";
 
-export const useQuestions = () => {
+/**
+ * @web\hooks\useQuestions.ts
+ * @description Hook to generate quiz questions based on a topic.
+ * @flow useAiTask -> parseQuestions -> returns structured QuestionItem[]
+ */
+export const useQuestions = (): Omit<UseMutationResult<QuestionItem[], Error, string>, 'mutate' | 'mutateAsync'> & {
+  mutate: (topic: string, options?: any) => void;
+  mutateAsync: (topic: string, options?: any) => Promise<QuestionItem[]>;
+} => {
   const taskMutation = useAiTask();
 
   const parseQuestions = (res: any): QuestionItem[] => {
