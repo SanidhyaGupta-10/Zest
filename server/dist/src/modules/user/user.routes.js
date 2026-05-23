@@ -1,8 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = require("express");
-const express_2 = require("@clerk/express");
-const user_controller_1 = require("./user.controller");
-const router = (0, express_1.Router)();
-router.post('/sync', (0, express_2.requireAuth)(), user_controller_1.syncUser);
-exports.default = router;
+import { Router } from "express";
+import { requireAuth } from "@clerk/express";
+import { syncUser } from "./user.controller.js";
+import { attachUser } from "../../middleware/auth.js";
+const router = Router();
+/**
+ * @server\src\modules\user\user.routes.ts POST /api/auth/sync
+ * @description Sync Clerk user data with the local database.
+ * @access private
+ */
+router.post('/sync', requireAuth(), attachUser, syncUser);
+export default router;

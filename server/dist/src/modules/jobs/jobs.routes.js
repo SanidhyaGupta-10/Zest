@@ -1,11 +1,12 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
-const jobs_controller_1 = require("./jobs.controller");
-const express_2 = require("@clerk/express");
-const router = express_1.default.Router();
-router.get("/:jobId", (0, express_2.requireAuth)(), jobs_controller_1.getJobStatus);
-exports.default = router;
+import express from "express";
+import { getJobStatus } from "./jobs.controller.js";
+import { requireAuth } from "@clerk/express";
+import { attachUser } from "../../middleware/auth.js";
+const router = express.Router();
+/**
+ * @server\src\modules\jobs\jobs.routes.ts GET /api/jobs/:jobId
+ * @description Poll the status and result of a long-running background job.
+ * @access private
+ */
+router.get("/:jobId", requireAuth(), attachUser, getJobStatus);
+export default router;

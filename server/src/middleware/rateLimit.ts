@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { redisConnection } from "../queues/connection";
+import { redisConnection } from "../queues/connection.js";
 
 const WINDOW = 60; // seconds
 const MAX_REQUESTS = 10; // per user per window

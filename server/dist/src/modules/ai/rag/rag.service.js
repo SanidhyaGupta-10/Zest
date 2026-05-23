@@ -1,14 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateRAGResponse = void 0;
-const llm_router_1 = require("../../../providers/llm.router");
-const retrieval_service_1 = require("./retrieval/retrieval.service");
+import { generateFromLLM } from "../../../providers/llm.router.js";
+import { retrieveContext } from "./retrieval/retrieval.service.js";
 /**
- * Hybrid RAG + LLM Fallback Service
+ * @server\src\modules\ai\rag\rag.service.ts generateRAGResponse
+ * @description Hybrid RAG + LLM Fallback Service. Attempts to retrieve context for a query; if context is found, uses RAG prompt, otherwise falls back to standard LLM generation.
+ * @access private
  */
-const generateRAGResponse = async ({ userId, query, }) => {
+export const generateRAGResponse = async ({ userId, query, }) => {
     // 1. Retrieval Step: Try retrieving context from vector DB
-    const context = await (0, retrieval_service_1.retrieveContext)({ userId, query });
+    const context = await retrieveContext({ userId, query });
     const contextExists = context && context.length > 0;
     let prompt;
     if (contextExists) {
@@ -41,11 +40,10 @@ ANSWER:
     }
     // 3. Call LLM (Chat Endpoint functionality)
     // Always respond (never "Not found in context")
-    const response = await (0, llm_router_1.generateFromLLM)(prompt);
+    const response = await generateFromLLM(prompt);
     return {
         answer: response,
         mode: contextExists ? "RAG" : "LLM_FALLBACK",
         sources: contextExists ? context : [],
     };
 };
-exports.generateRAGResponse = generateRAGResponse;

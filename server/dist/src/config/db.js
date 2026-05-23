@@ -1,34 +1,32 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.prisma = void 0;
-exports.connectDB = connectDB;
-const client_1 = require("@prisma/client");
-require("dotenv/config");
+import { PrismaClient } from "@prisma/client";
+import "dotenv/config";
 const globalForPrisma = globalThis;
 const dbUrl = process.env.DATABASE_URL;
 if (!dbUrl) {
     throw new Error("DATABASE_URL is not defined in environment variables.");
 }
-// Append params safely
+// FIX: Force limit connections to 1 and add pgbouncer for free-tier DBs
+// This prevents the "Closed" error caused by too many open connections.
+const params = "connect_timeout=30&sslmode=require&connection_limit=1&pgbouncer=true";
 const enhancedUrl = dbUrl.includes("?")
-    ? `${dbUrl}&connect_timeout=30&sslmode=require`
-    : `${dbUrl}?connect_timeout=30&sslmode=require`;
-exports.prisma = globalForPrisma.prisma ??
-    new client_1.PrismaClient({
-        log: ["query", "info", "warn", "error"],
+    ? `${dbUrl}&${params}`
+    : `${dbUrl}?${params}`;
+export const prisma = globalForPrisma.prisma ??
+    new PrismaClient({
+        log: ["error", "warn"], // Cleaner logs for production
         datasources: {
             db: { url: enhancedUrl },
         },
     });
 if (process.env.NODE_ENV !== "production")
-    globalForPrisma.prisma = exports.prisma;
-async function connectDB() {
+    globalForPrisma.prisma = prisma;
+export async function connectDB() {
     try {
-        await exports.prisma.$connect();
-        console.log("DB connected ✅");
+        await prisma.$connect();
+        console.log('✅ Database connected successfully');
     }
     catch (err) {
-        console.error("❌ Prisma connection error:", err);
-        process.exit(1);
+        console.error('❌ Database connection failed:', err);
+        // Don't exit(1) here; let Render retry the connection on next request
     }
 }

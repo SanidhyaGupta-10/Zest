@@ -1,14 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateEmbedding = void 0;
-const gemini_provider_1 = require("../../../../providers/gemini.provider");
-const generateEmbedding = async (text) => {
+import { genAI } from "../../../../providers/gemini.provider.js";
+export const generateEmbedding = async (text) => {
     const DIMENSIONS = 1536;
     if (!text || text.trim().length === 0)
         return Array(DIMENSIONS).fill(0);
     try {
         // Use the correct embedContent API for @google/genai
-        const result = await gemini_provider_1.genAI.models.embedContent({
+        const result = await genAI.models.embedContent({
             model: "text-embedding-004",
             contents: text, // Pass string directly, not array
             config: {
@@ -27,4 +24,3 @@ const generateEmbedding = async (text) => {
         return Array(DIMENSIONS).fill(0);
     }
 };
-exports.generateEmbedding = generateEmbedding;

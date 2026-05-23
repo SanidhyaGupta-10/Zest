@@ -1,13 +1,15 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.retrieveContext = void 0;
-const embedder_1 = require("../ingestion/embedder");
-const vector_store_1 = require("../store/vector.store");
-const retrieveContext = async ({ userId, query, limit = 5, }) => {
+import { generateEmbedding } from "../ingestion/embedder.js";
+import { searchSimilar } from "../store/vector.store.js";
+/**
+ * @server\src\modules\ai\rag\retrieval\retrieval.service.ts retrieveContext
+ * @description Retrieves relevant context for a given query by generating an embedding and searching the vector database.
+ * @access private
+ */
+export const retrieveContext = async ({ userId, query, limit = 5, }) => {
     // 1. Convert query → embedding
-    const embedding = await (0, embedder_1.generateEmbedding)(query);
+    const embedding = await generateEmbedding(query);
     // 2. Search similar chunks
-    const results = await (0, vector_store_1.searchSimilar)({
+    const results = await searchSimilar({
         userId,
         embedding,
         limit,
@@ -16,4 +18,3 @@ const retrieveContext = async ({ userId, query, limit = 5, }) => {
     const context = results.map((r) => r.content);
     return context;
 };
-exports.retrieveContext = retrieveContext;

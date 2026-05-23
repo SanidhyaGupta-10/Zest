@@ -1,31 +1,36 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getJobStatus = void 0;
-const express_1 = require("@clerk/express");
-const ai_queue_1 = require("../../queues/ai.queue");
-const queues = [ai_queue_1.aiQueue];
-const getJobStatus = async (req, res) => {
+import { aiQueue } from "../../queues/ai.queue.js";
+const queues = [aiQueue];
+/**
+ * @server\src\modules\jobs\jobs.controller.ts getJobStatus
+ * @description Poll the status and result of a long-running background job from the AI queue.
+ * @access private
+ */
+export const getJobStatus = async (req, res) => {
     try {
         const { jobId } = req.params;
-        const userId = (0, express_1.getAuth)(req).userId;
+        const userId = req.user?.userId;
         if (!jobId) {
-            return res.status(400).json({ message: "Job ID is required" });
+            res.status(400).json({ message: "Job ID is required" });
+            return;
         }
         if (!userId) {
-            return res.status(401).json({ message: "Unauthorized" });
+            res.status(401).json({ message: "Unauthorized" });
+            return;
         }
         // Try to find the job in any queue
         let job;
         for (const queue of queues) {
-            job = await queue.getJob(jobId);
+            job = await queue.getJob(String(jobId));
             if (job)
                 break;
         }
         if (!job) {
-            return res.status(404).json({ message: "Job not found" });
+            res.status(404).json({ message: "Job not found" });
+            return;
         }
         if (job.data.userId !== userId) {
-            return res.status(403).json({ message: "Forbidden" });
+            res.status(403).json({ message: "Forbidden" });
+            return;
         }
         // Get job state: waiting | active | completed | failed
         const state = await job.getState();
@@ -40,7 +45,7 @@ const getJobStatus = async (req, res) => {
         else {
             status = "queued"; // waiting | active
         }
-        return res.json({
+        res.json({
             status,
             result: job.returnvalue ?? null,
             failedReason: job.failedReason ?? null,
@@ -49,7 +54,6 @@ const getJobStatus = async (req, res) => {
     }
     catch (err) {
         console.error("Error fetching job status:", err);
-        return res.status(500).json({ message: "Error fetching job status" });
+        res.status(500).json({ message: "Error fetching job status" });
     }
 };
-exports.getJobStatus = getJobStatus;

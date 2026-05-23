@@ -1,19 +1,14 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.setCache = exports.getCache = void 0;
-const connection_1 = require("../queues/connection");
+import { redisConnection } from "../queues/connection.js";
 /**
  * Get data from cache
  */
-const getCache = async (key) => {
-    const data = await connection_1.redisConnection.get(key);
+export const getCache = async (key) => {
+    const data = await redisConnection.get(key);
     return data ? JSON.parse(data) : null;
 };
-exports.getCache = getCache;
 /**
  * Set data in cache
  */
-const setCache = async (key, value, ttl) => {
-    await connection_1.redisConnection.set(key, JSON.stringify(value), 'EX', ttl);
+export const setCache = async (key, value, ttl) => {
+    await redisConnection.set(key, JSON.stringify(value), 'EX', ttl);
 };
-exports.setCache = setCache;

@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.questionPrompt = void 0;
-const questionPrompt = (topic, context) => `
+export const questionPrompt = (topic, context) => `
 ### Task
 Act as an expert educator. Generate 5 high-quality study questions about: "${topic}".
 ${context ? `Use the provided context only to ensure questions are grounded in the user's specific data.` : `Answer using your knowledge clearly and concisely.`}
@@ -27,4 +24,3 @@ Each object in the array must follow this structure:
 - No conversational filler, preamble, or markdown code blocks (unless specified by the API's response_format).
 - No explanation of the questions.
 `;
-exports.questionPrompt = questionPrompt;

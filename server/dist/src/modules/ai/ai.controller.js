@@ -1,22 +1,17 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ingestDocumentController = exports.getUserQuestions = exports.getUserNotes = exports.getUserSummaries = exports.getChatMessages = exports.getChats = exports.taskController = exports.chatController = void 0;
-const express_1 = require("@clerk/express");
-const ai_queue_1 = require("../../queues/ai.queue");
-const rag_service_1 = require("./rag/rag.service");
-const db_1 = require("../../config/db");
-const ai_worker_1 = require("../../queues/workers/ai.worker");
-const ingestion_service_1 = require("./rag/ingestion/ingestion.service");
+import { aiQueue } from "../../queues/ai.queue.js";
+import { generateRAGResponse } from "./rag/rag.service.js";
+import { prisma } from "../../config/db.js";
+import { AiTaskType } from "../../queues/workers/ai.worker.js";
+import { ingestDocument } from "./rag/ingestion/ingestion.service.js";
 /**
- * Hybrid RAG Chat Controller
- * Handles user queries with optional RAG context and LLM fallback
+ * @server\src\modules\ai\ai.controller.ts chatController
+ * @description Hybrid RAG Chat Controller. Handles user queries with context retrieval and LLM fallback.
+ * @access private
  */
-const chatController = async (req, res) => {
+export const chatController = async (req, res) => {
     try {
         const { query, chatId } = req.body;
-        const userId = (0, express_1.getAuth)(req).userId;
-        console.log('[ChatController] Request body:', req.body);
-        console.log('[ChatController] UserId from auth:', userId);
+        const userId = req.user?.userId;
         if (!userId) {
             res.status(401).json({ message: "Unauthorized" });
             return;
@@ -26,7 +21,7 @@ const chatController = async (req, res) => {
             return;
         }
         // Handle Chat Session
-        let chat = chatId ? await db_1.prisma.chat.findUnique({ where: { id: chatId } }) : null;
+        let chat = chatId ? await prisma.chat.findUnique({ where: { id: chatId } }) : null;
         if (chatId && (!chat || chat.userId !== userId)) {
             res.status(404).json({
                 message: "Chat not found"
@@ -34,7 +29,7 @@ const chatController = async (req, res) => {
             return;
         }
         if (!chat) {
-            chat = await db_1.prisma.chat.create({
+            chat = await prisma.chat.create({
                 data: {
                     userId,
                     title: query.slice(0, 50)
@@ -42,7 +37,7 @@ const chatController = async (req, res) => {
             });
         }
         // Save User Message
-        await db_1.prisma.message.create({
+        await prisma.message.create({
             data: {
                 chatId: chat.id,
                 role: "user",
@@ -50,10 +45,9 @@ const chatController = async (req, res) => {
             },
         });
         // Generate Response
-        const result = await (0, rag_service_1.generateRAGResponse)({ userId, query });
-        console.log('[ChatController] RAG result:', JSON.stringify(result));
+        const result = await generateRAGResponse({ userId, query });
         // Save Assistant Message
-        await db_1.prisma.message.create({
+        await prisma.message.create({
             data: {
                 chatId: chat.id,
                 role: "assistant",
@@ -61,35 +55,35 @@ const chatController = async (req, res) => {
             },
         });
         const responsePayload = { chatId: chat.id, answer: result.answer };
-        console.log('[ChatController] Sending response:', JSON.stringify(responsePayload));
-        return res.json(responsePayload);
+        res.json(responsePayload);
+        return;
     }
     catch (error) {
-        console.error("Chat Controller Error:", error);
-        return res.status(500).json({ success: false, message: "Processing failed" });
+        res.status(500).json({ success: false, message: "Processing failed" });
+        return;
     }
 };
-exports.chatController = chatController;
 /**
- * Unified Task Controller
- * Handles Summarization, Question Generation, and Note Generation
+ * @server\src\modules\ai\ai.controller.ts taskController
+ * @description Unified Task Controller. Handles Summarization, Question Generation, and Note Generation via BullMQ.
+ * @access private
  */
-const taskController = async (req, res) => {
+export const taskController = async (req, res) => {
     try {
         const { type, topic, content } = req.body;
-        const userId = (0, express_1.getAuth)(req).userId;
+        const userId = req.user?.userId;
         if (!userId) {
             res.status(401).json({
                 message: "Unauthorized"
             });
             return;
         }
-        if (!type || !Object.values(ai_worker_1.AiTaskType).includes(type)) {
+        if (!type || !Object.values(AiTaskType).includes(type)) {
             res.status(400).json({ message: "Valid task type is required" });
             return;
         }
         // Queue the job
-        const job = await ai_queue_1.aiQueue.add(type.toLowerCase(), {
+        const job = await aiQueue.add(type.toLowerCase(), {
             type,
             userId,
             topic,
@@ -101,70 +95,77 @@ const taskController = async (req, res) => {
                 delay: 1000
             },
         });
-        return res.json({
+        res.json({
             success: true,
             jobId: job.id,
             message: `${type} task queued successfully`,
         });
+        return;
     }
     catch (error) {
-        console.error("Task Controller Error:", error);
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Failed to queue task"
         });
+        return;
     }
 };
-exports.taskController = taskController;
 /**
- * Get History Controllers
+ * @server\src\modules\ai\ai.controller.ts getChats
+ * @description Retrieve all chat sessions for the authenticated user.
+ * @access private
  */
-const getChats = async (req, res) => {
-    const userId = (0, express_1.getAuth)(req).userId;
+export const getChats = async (req, res) => {
+    const userId = req.user?.userId;
     if (!userId) {
         res.status(401).json({ message: "Unauthorized" });
         return;
     }
-    const chats = await db_1.prisma.chat.findMany({
+    const chats = await prisma.chat.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
         include: { _count: { select: { messages: true } } },
     });
-    return res.json({
+    res.json({
         success: true,
         chats
     });
 };
-exports.getChats = getChats;
 /**
- * Get Chat Messages
- * GET /api/ai/history/chats/:chatId
+ * @server\src\modules\ai\ai.controller.ts getChatMessages
+ * @description Retrieve all messages for a specific chat session.
+ * @access private
  */
-const getChatMessages = async (req, res) => {
-    const chatId = req.params.chatId;
-    const userId = (0, express_1.getAuth)(req).userId;
-    if (!userId)
-        return res.status(401).json({ message: "Unauthorized" });
-    const chat = await db_1.prisma.chat.findUnique({
+export const getChatMessages = async (req, res) => {
+    const chatId = String(req.params.chatId);
+    const userId = req.user?.userId;
+    if (!userId) {
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+    }
+    const chat = await prisma.chat.findUnique({
         where: { id: chatId },
         include: { messages: { orderBy: { createdAt: "asc" } } },
     });
     if (!chat || chat.userId !== userId) {
-        return res.status(404).json({ message: "Chat not found" });
+        res.status(404).json({ message: "Chat not found" });
+        return;
     }
-    return res.json({ success: true, chat });
+    res.json({ success: true, chat });
 };
-exports.getChatMessages = getChatMessages;
 /**
- * Get User's Summaries History
- * GET /api/ai/history/summaries
+ * @server\src\modules\ai\ai.controller.ts getUserSummaries
+ * @description Retrieve the history of all generated summaries for the user.
+ * @access private
  */
-const getUserSummaries = async (req, res) => {
+export const getUserSummaries = async (req, res) => {
     try {
-        const userId = (0, express_1.getAuth)(req).userId;
-        if (!userId)
-            return res.status(401).json({ message: "Unauthorized" });
-        const summaries = await db_1.prisma.summary.findMany({
+        const userId = req.user?.userId;
+        if (!userId) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+        const summaries = await prisma.summary.findMany({
             where: { userId },
             orderBy: { createdAt: "desc" },
             select: {
@@ -174,30 +175,31 @@ const getUserSummaries = async (req, res) => {
                 createdAt: true,
             },
         });
-        return res.json({
+        res.json({
             success: true,
             summaries
         });
     }
     catch (error) {
-        console.error("Get Summaries Error:", error);
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
-            message: error.message
+            message: error instanceof Error ? error.message : "Unknown error"
         });
     }
 };
-exports.getUserSummaries = getUserSummaries;
 /**
- * Get User's Notes History
- * GET /api/ai/history/notes
+ * @server\src\modules\ai\ai.controller.ts getUserNotes
+ * @description Retrieve the history of all generated study notes for the user.
+ * @access private
  */
-const getUserNotes = async (req, res) => {
+export const getUserNotes = async (req, res) => {
     try {
-        const userId = (0, express_1.getAuth)(req).userId;
-        if (!userId)
-            return res.status(401).json({ message: "Unauthorized" });
-        const notes = await db_1.prisma.note.findMany({
+        const userId = req.user?.userId;
+        if (!userId) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+        const notes = await prisma.note.findMany({
             where: { userId },
             orderBy: { createdAt: "desc" },
             select: {
@@ -207,27 +209,31 @@ const getUserNotes = async (req, res) => {
                 createdAt: true,
             },
         });
-        return res.json({
+        res.json({
             success: true,
             notes
         });
     }
     catch (error) {
-        console.error("Get Notes Error:", error);
-        return res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({
+            success: false,
+            message: error instanceof Error ? error.message : "Unknown error"
+        });
     }
 };
-exports.getUserNotes = getUserNotes;
 /**
- * Get User's Questions History
- * GET /api/ai/history/questions
+ * @server\src\modules\ai\ai.controller.ts getUserQuestions
+ * @description Retrieve the history of all generated quiz questions for the user.
+ * @access private
  */
-const getUserQuestions = async (req, res) => {
+export const getUserQuestions = async (req, res) => {
     try {
-        const userId = (0, express_1.getAuth)(req).userId;
-        if (!userId)
-            return res.status(401).json({ message: "Unauthorized" });
-        const questions = await db_1.prisma.question.findMany({
+        const userId = req.user?.userId;
+        if (!userId) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+        const questions = await prisma.question.findMany({
             where: { userId },
             orderBy: { createdAt: "desc" },
             select: {
@@ -237,54 +243,51 @@ const getUserQuestions = async (req, res) => {
                 createdAt: true,
             },
         });
-        return res.json({
+        res.json({
             success: true,
             questions
         });
     }
     catch (error) {
-        console.error("Get Questions Error:", error);
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
-            message: error.message
+            message: error instanceof Error ? error.message : "Unknown error"
         });
     }
 };
-exports.getUserQuestions = getUserQuestions;
 /**
- * Document Ingestion Controller
- * Handles document chunking and embedding storage for RAG
+ * @server\src\modules\ai\ai.controller.ts ingestDocumentController
+ * @description Document Ingestion Controller. Handles chunking and embedding storage for RAG.
+ * @access private
  */
-const ingestDocumentController = async (req, res) => {
+export const ingestDocumentController = async (req, res) => {
     try {
         const { content } = req.body;
-        const userId = (0, express_1.getAuth)(req).userId;
-        if (!userId)
-            return res.status(401).json({ message: "Unauthorized" });
-        if (!content || typeof content !== "string") {
-            return res.status(400).json({ message: "Content is required and must be a string" });
+        const userId = req.user?.userId;
+        if (!userId) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
         }
-        console.log(`[IngestDocument] Processing document for user: ${userId}, content length: ${content.length}`);
+        if (!content || typeof content !== "string") {
+            res.status(400).json({ message: "Content is required and must be a string" });
+            return;
+        }
         // Process the document - chunk and store embeddings
-        const result = await (0, ingestion_service_1.ingestDocument)({
+        const result = await ingestDocument({
             userId,
             content,
         });
-        console.log(`[IngestDocument] Successfully ingested ${result.chunks} chunks`);
-        return res.json({
+        res.json({
             success: true,
             chunks: result.chunks,
             message: `Document processed and indexed into ${result.chunks} chunks`,
         });
     }
     catch (error) {
-        console.error("Ingest Document Controller Error:", error);
-        console.error("Error stack:", error.stack);
-        return res.status(500).json({
+        res.status(500).json({
             success: false,
             message: "Failed to ingest document",
-            error: error.message,
+            error: error instanceof Error ? error.message : "Unknown error",
         });
     }
 };
-exports.ingestDocumentController = ingestDocumentController;

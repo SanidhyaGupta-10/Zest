@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.summaryPrompt = void 0;
-const summaryPrompt = (content) => `
+export const summaryPrompt = (content) => `
 ### Task
 Provide a high-impact, concise summary of the text provided below.
 
@@ -20,4 +17,3 @@ Provide a high-impact, concise summary of the text provided below.
 ${content}
 """
 `;
-exports.summaryPrompt = summaryPrompt;

@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.notesPrompt = void 0;
-const notesPrompt = (topic) => `
+export const notesPrompt = (topic) => `
 ### Task
 Act as a professional academic assistant. Create comprehensive, structured study notes on: "${topic}".
 
@@ -23,4 +20,3 @@ Act as a professional academic assistant. Create comprehensive, structured study
 
 Topic: ${topic}
 `;
-exports.notesPrompt = notesPrompt;
