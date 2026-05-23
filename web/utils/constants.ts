@@ -30,3 +30,34 @@ export const features = [
     color: "from-emerald-500 to-teal-400",
   },
 ];
+
+export const historySections = [
+  {
+    name: "Chat History",
+    href: "/history/chats",
+    icon: MessageSquare,
+    description: "View your previous conversations with the AI assistant",
+    color: "blue",
+  },
+  {
+    name: "Summaries",
+    href: "/history/summaries",
+    icon: FileText,
+    description: "Access all text summaries you have generated",
+    color: "amber",
+  },
+  {
+    name: "Notes",
+    href: "/history/notes",
+    icon: BookOpen,
+    description: "Browse your generated study notes by topic",
+    color: "emerald",
+  },
+  {
+    name: "Questions",
+    href: "/history/questions",
+    icon: HelpCircle,
+    description: "Review all quiz questions you have created",
+    color: "blue",
+  },
+];

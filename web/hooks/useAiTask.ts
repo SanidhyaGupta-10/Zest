@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/nextjs";
 import { useMutation } from "@tanstack/react-query";
-import { aiApi, AiTaskType } from "@/lib/api";
+import { aiApi } from "@/lib/api";
 import { TaskInput } from "@/types/hooks.types";
 
 // Shared polling function with token support

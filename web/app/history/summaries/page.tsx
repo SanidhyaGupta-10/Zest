@@ -7,12 +7,7 @@ import { FileText, Clock, ChevronRight, ArrowLeft, Copy, Check } from "lucide-re
 import { aiApi } from "@/lib/api";
 import Markdown from "@/components/Markdown";
 
-interface Summary {
-  id: string;
-  content: string;
-  result: string;
-  createdAt: string;
-}
+import { Summary } from "@/types/history.types";
 
 export default function SummariesHistoryPage() {
   const { userId, getToken } = useAuth();

@@ -1,23 +1,15 @@
 "use client";
 
 import { useQuestions } from "@/hooks/useQuestions";
-import { useUser } from "@clerk/nextjs";
 import { HelpCircle, Loader2, Sparkles, AlertCircle, Command, Trash2, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BackButton } from "@/components/BackButton";
-
-interface Question {
-  id: number;
-  question: string;
-  difficulty: string;
-  category: string;
-}
+import { QuestionItem } from "@/types/history.types";
 
 export default function QuestionsPage() {
-  const { user } = useUser();
   const [topic, setTopic] = useState("");
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<QuestionItem[]>([]);
   const mutation = useQuestions();
 
   const handleGenerate = async () => {
@@ -28,7 +20,7 @@ export default function QuestionsPage() {
 
 
         // Handle both array of objects and single string fallback
-        let qList: Question[] = [];
+        let qList: QuestionItem[] = [];
 
         // If res is a string, try to parse it as JSON
         let parsedRes = res;

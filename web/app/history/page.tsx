@@ -1,40 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { History, MessageSquare, FileText, BookOpen, HelpCircle, ChevronRight, Clock } from "lucide-react";
+import { History, ChevronRight, Clock } from "lucide-react";
 import Link from "next/link";
 import { BackButton } from "@/components/BackButton";
-
-const historySections = [
-  {
-    name: "Chat History",
-    href: "/history/chats",
-    icon: MessageSquare,
-    description: "View your previous conversations with the AI assistant",
-    color: "blue",
-  },
-  {
-    name: "Summaries",
-    href: "/history/summaries",
-    icon: FileText,
-    description: "Access all text summaries you have generated",
-    color: "amber",
-  },
-  {
-    name: "Notes",
-    href: "/history/notes",
-    icon: BookOpen,
-    description: "Browse your generated study notes by topic",
-    color: "emerald",
-  },
-  {
-    name: "Questions",
-    href: "/history/questions",
-    icon: HelpCircle,
-    description: "Review all quiz questions you have created",
-    color: "blue",
-  },
-];
+import { historySections } from "@/utils/constants";
 
 const colorClasses: Record<string, { bg: string; border: string; text: string; hover: string }> = {
   blue: {

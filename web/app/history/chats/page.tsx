@@ -7,19 +7,7 @@ import { MessageSquare, ChevronRight, Clock, Bot, User, ArrowLeft } from "lucide
 import { aiApi } from "@/lib/api";
 import Markdown from "@/components/Markdown";
 
-interface Chat {
-  id: string;
-  title: string;
-  createdAt: string;
-  messages?: Message[];
-}
-
-interface Message {
-  id: string;
-  role: "user" | "ai";
-  content: string;
-  createdAt: string;
-}
+import { Chat, Message } from "@/types/history.types";
 
 export default function ChatHistoryPage() {
   const { userId, getToken } = useAuth();

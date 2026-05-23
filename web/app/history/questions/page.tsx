@@ -6,19 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { HelpCircle, Clock, ChevronRight, ArrowLeft, Copy, Check, Sparkles } from "lucide-react";
 import { aiApi } from "@/lib/api";
 
-interface QuestionItem {
-  id: number;
-  question: string;
-  difficulty: string;
-  category: string;
-}
-
-interface Question {
-  id: string;
-  topic: string;
-  questions: QuestionItem[];
-  createdAt: string;
-}
+import { Question, QuestionItem } from "@/types/history.types";
 
 export default function QuestionsHistoryPage() {
   const { userId, getToken } = useAuth();

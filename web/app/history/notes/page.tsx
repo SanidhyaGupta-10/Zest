@@ -7,12 +7,7 @@ import { BookOpen, Clock, ChevronRight, ArrowLeft, Copy, Check } from "lucide-re
 import { aiApi } from "@/lib/api";
 import Markdown from "@/components/Markdown";
 
-interface Note {
-  id: string;
-  topic: string;
-  notes: string;
-  createdAt: string;
-}
+import { Note } from "@/types/history.types";
 
 export default function NotesHistoryPage() {
   const { userId, getToken } = useAuth();
