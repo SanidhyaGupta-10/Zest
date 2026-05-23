@@ -6,16 +6,14 @@ import { AiTaskType } from "../../queues/workers/ai.worker.js";
 import { ingestDocument } from "./rag/ingestion/ingestion.service.js";
 
 /**
- * Hybrid RAG Chat Controller
- * Handles user queries with optional RAG context and LLM fallback
+ * @server\src\modules\ai\ai.controller.ts chatController
+ * @description Hybrid RAG Chat Controller. Handles user queries with context retrieval and LLM fallback.
+ * @access private
  */
-
 export const chatController = async (req: Request, res: Response): Promise<void> => {
   try {
     const { query, chatId } = req.body;
     const userId = req.user?.userId;
-
-
 
     if (!userId) {
       res.status(401).json({ message: "Unauthorized" });
@@ -73,15 +71,15 @@ export const chatController = async (req: Request, res: Response): Promise<void>
     return;
 
   } catch (error) {
-
     res.status(500).json({ success: false, message: "Processing failed" });
     return;
   }
 };
 
 /**
- * Unified Task Controller
- * Handles Summarization, Question Generation, and Note Generation
+ * @server\src\modules\ai\ai.controller.ts taskController
+ * @description Unified Task Controller. Handles Summarization, Question Generation, and Note Generation via BullMQ.
+ * @access private
  */
 export const taskController = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -123,7 +121,6 @@ export const taskController = async (req: Request, res: Response): Promise<void>
     return;
 
   } catch (error) {
-
     res.status(500).json({ 
       success: false, 
       message: "Failed to queue task" 
@@ -133,7 +130,9 @@ export const taskController = async (req: Request, res: Response): Promise<void>
 };
 
 /**
- * Get History Controllers
+ * @server\src\modules\ai\ai.controller.ts getChats
+ * @description Retrieve all chat sessions for the authenticated user.
+ * @access private
  */
 export const getChats = async (req: Request, res: Response): Promise<void> => {
   const userId = req.user?.userId;
@@ -155,8 +154,9 @@ export const getChats = async (req: Request, res: Response): Promise<void> => {
 };
 
 /**
- * Get Chat Messages
- * GET /api/ai/chats/:chatId
+ * @server\src\modules\ai\ai.controller.ts getChatMessages
+ * @description Retrieve all messages for a specific chat session.
+ * @access private
  */
 export const getChatMessages = async (req: Request, res: Response): Promise<void> => {
   const chatId = String(req.params.chatId);
@@ -182,8 +182,9 @@ export const getChatMessages = async (req: Request, res: Response): Promise<void
 };
 
 /**
- * Get User's Summaries History
- * GET /api/ai/history/summaries
+ * @server\src\modules\ai\ai.controller.ts getUserSummaries
+ * @description Retrieve the history of all generated summaries for the user.
+ * @access private
  */
 export const getUserSummaries = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -209,7 +210,6 @@ export const getUserSummaries = async (req: Request, res: Response): Promise<voi
       summaries 
     });
   } catch (error) {
-
     res.status(500).json({ 
       success: false, 
       message: error instanceof Error ? error.message : "Unknown error" 
@@ -218,8 +218,9 @@ export const getUserSummaries = async (req: Request, res: Response): Promise<voi
 };
 
 /**
- * Get User's Notes History
- * GET /api/ai/history/notes
+ * @server\src\modules\ai\ai.controller.ts getUserNotes
+ * @description Retrieve the history of all generated study notes for the user.
+ * @access private
  */
 export const getUserNotes = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -245,7 +246,6 @@ export const getUserNotes = async (req: Request, res: Response): Promise<void> =
       notes 
     });
   } catch (error) {
-
     res.status(500).json({ 
       success: false, 
       message: error instanceof Error ? error.message : "Unknown error" 
@@ -254,8 +254,9 @@ export const getUserNotes = async (req: Request, res: Response): Promise<void> =
 };
 
 /**
- * Get User's Questions History
- * GET /api/ai/history/questions
+ * @server\src\modules\ai\ai.controller.ts getUserQuestions
+ * @description Retrieve the history of all generated quiz questions for the user.
+ * @access private
  */
 export const getUserQuestions = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -281,7 +282,6 @@ export const getUserQuestions = async (req: Request, res: Response): Promise<voi
       questions 
     });
   } catch (error) {
-
     res.status(500).json({ 
       success: false, 
       message: error instanceof Error ? error.message : "Unknown error"
@@ -290,8 +290,9 @@ export const getUserQuestions = async (req: Request, res: Response): Promise<voi
 };
 
 /**
- * Document Ingestion Controller
- * Handles document chunking and embedding storage for RAG
+ * @server\src\modules\ai\ai.controller.ts ingestDocumentController
+ * @description Document Ingestion Controller. Handles chunking and embedding storage for RAG.
+ * @access private
  */
 export const ingestDocumentController = async (
   req: Request, res: Response
@@ -309,15 +310,11 @@ export const ingestDocumentController = async (
       return;
     }
 
-
-
     // Process the document - chunk and store embeddings
     const result = await ingestDocument({
       userId,
       content,
     });
-
-
 
     res.json({
       success: true,
@@ -326,8 +323,6 @@ export const ingestDocumentController = async (
     });
 
   } catch (error) {
-
-
     res.status(500).json({
       success: false,
       message: "Failed to ingest document",

@@ -10,6 +10,7 @@ const router = Router();
  * @description Sync Clerk user data with the local database.
  * @access private
  */
+
 router.post('/sync', requireAuth(), attachUser, syncUser);
 
 export default router;

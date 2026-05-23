@@ -2,12 +2,11 @@ import { storeEmbedding } from "../store/vector.store.js";
 import { chunkText } from "./chunker.js";
 import { generateEmbedding } from "./embedder.js";
 
-// What it is doing?
-// => It is ingesting the document into the database.
-// => It is chunking the document into smaller chunks.
-// => It is generating embeddings for each chunk.
-// => It is storing the embeddings in the database.
-
+/**
+ * @server\src\modules\ai\rag\ingestion\ingestion.service.ts ingestDocument
+ * @description Ingests a document by chunking the text, generating embeddings for each chunk, and storing them in the vector database.
+ * @access private
+ */
 export const ingestDocument = async ({
   userId,
   content,

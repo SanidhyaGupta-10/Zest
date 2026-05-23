@@ -2,6 +2,12 @@ import { clerkClient } from "@clerk/express";
 import { prisma } from "../../config/db.js";
 import { Request, Response } from "express";
 
+/**
+ * @server\src\modules\user\user.controller.ts syncUser
+ * @description Sync Clerk user data with the local Neon database using Prisma.
+ * @access private
+ */
+
 export const syncUser = async (req: Request, res: Response): Promise<void> => {
   try {
     // 1. Get userId from auth middleware

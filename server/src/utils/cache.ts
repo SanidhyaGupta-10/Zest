@@ -1,4 +1,4 @@
-import { redisConnection } from "../queues/connection";
+import { redisConnection } from "../queues/connection.js";
 
 /**
  * Get data from cache

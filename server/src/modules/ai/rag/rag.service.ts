@@ -2,7 +2,9 @@ import { generateFromLLM } from "../../../providers/llm.router.js";
 import { retrieveContext } from "./retrieval/retrieval.service.js";
 
 /**
- * Hybrid RAG + LLM Fallback Service
+ * @server\src\modules\ai\rag\rag.service.ts generateRAGResponse
+ * @description Hybrid RAG + LLM Fallback Service. Attempts to retrieve context for a query; if context is found, uses RAG prompt, otherwise falls back to standard LLM generation.
+ * @access private
  */
 export const generateRAGResponse = async ({
   userId,
