@@ -48,5 +48,5 @@ export interface JobResponse {
 
 export interface JobStatusResponse {
   status: 'pending' | 'processing' | 'completed' | 'failed';
-  result?: any;
+  result?: unknown;
 }

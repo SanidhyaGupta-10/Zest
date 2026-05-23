@@ -12,6 +12,7 @@ import Markdown from "@/components/Markdown";
 import { useChat } from "@/hooks/useChat";
 import { useUser } from "@clerk/nextjs";
 import { ChatSession } from "@/types/components.types";
+import { Message } from "@/types/hooks.types";
 
 /* ─── Mock chat history (replace with real API later) ─── */
 const MOCK_HISTORY: ChatSession[] = [
@@ -50,7 +51,7 @@ function TypingIndicator() {
 }
 
 /* ─── Single Message Bubble ───────────────────────────── */
-function MessageBubble({ msg, onCopy }: { msg: any; onCopy: (text: string) => void }) {
+function MessageBubble({ msg, onCopy }: { msg: Message; onCopy: (text: string) => void }) {
   const [copied, setCopied] = useState(false);
   const isUser = msg.role === "user";
 
@@ -163,7 +164,7 @@ function WelcomeScreen({
         {userName ? `Hello, ${userName.split(" ")[0]} 👋` : "Hello there 👋"}
       </h2>
       <p className="text-gray-400 text-lg font-medium mb-2 max-w-md leading-relaxed">
-        I'm your AI knowledge assistant.
+        I&apos;m your AI knowledge assistant.
       </p>
       <p className="text-gray-500 text-sm mb-10 max-w-sm">
         Ask me anything — summarize notes, explain concepts, generate quizzes, or just chat.
@@ -492,7 +493,7 @@ export default function ChatLayout() {
                 />
               ) : (
                 <div className="flex-1 px-4 py-6 space-y-6 max-w-3xl mx-auto w-full">
-                  {messages.map((msg: any, idx: number) => (
+                  {messages.map((msg: Message, idx: number) => (
                     <MessageBubble
                       key={idx}
                       msg={msg}

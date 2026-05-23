@@ -196,8 +196,8 @@ export default function QuestionsPage() {
               <div>
                 <h3 className="text-lg font-black text-red-400 mb-2 uppercase tracking-tighter leading-none">Generation Failed</h3>
                 <p className="text-sm font-medium text-red-400/60 leading-relaxed">
-                  We couldn't generate questions for this topic. Please ensure you have
-                  processed relevant notes in the "Notes" section first, or try a different topic.
+                  We couldn&apos;t generate questions for this topic. Please ensure you have
+                  processed relevant notes in the &quot;Notes&quot; section first, or try a different topic.
                 </p>
               </div>
             </div>

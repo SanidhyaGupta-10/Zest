@@ -34,7 +34,7 @@ export default function RootLayout({
       >
           <body
             suppressHydrationWarning
-            className="min-h-full bg-slate-950 flex font-sans"
+            className="min-h-full bg-slate-950 font-sans"
           >
             <Providers>
               {/* Background elements */}

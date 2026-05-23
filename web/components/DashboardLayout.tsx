@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
+import { cn } from "@/lib/utils";
 
 export default function DashboardLayout({
   children,
@@ -15,19 +16,23 @@ export default function DashboardLayout({
   const pathname = usePathname();
 
   const isChat = pathname === "/chat";
+  const isHome = pathname === "/";
+  
   const sidebarWidth = isNavCollapsed ? "w-16" : "w-64";
-  const mainMargin = isNavCollapsed ? "md:ml-16" : "md:ml-64";
+  const mainMargin = isHome ? "" : (isNavCollapsed ? "md:ml-16" : "md:ml-64");
 
   return (
     <>
-      <Sidebar
-        isOpen={isMobileSidebarOpen}
-        setIsOpen={setIsMobileSidebarOpen}
-        isCollapsed={isNavCollapsed}
-        setIsCollapsed={setIsNavCollapsed}
-        sidebarWidth={sidebarWidth}
-      />
-      <div className={`flex-1 flex flex-col min-w-0 ${mainMargin} transition-all duration-300`}>
+      {!isHome && (
+        <Sidebar
+          isOpen={isMobileSidebarOpen}
+          setIsOpen={setIsMobileSidebarOpen}
+          isCollapsed={isNavCollapsed}
+          setIsCollapsed={setIsNavCollapsed}
+          sidebarWidth={sidebarWidth}
+        />
+      )}
+      <div className={`flex flex-col min-w-0 ${mainMargin} transition-all duration-300 min-h-screen`}>
         <Navbar onMenuClick={() => setIsMobileSidebarOpen(true)} />
 
         {isChat ? (
@@ -37,10 +42,8 @@ export default function DashboardLayout({
           </main>
         ) : (
           /* All other pages: standard padded content wrapper */
-          <main className="flex-1 relative z-0">
-            <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              {children}
-            </div>
+          <main className={cn("flex-1 relative z-0", isHome ? "" : "w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8")}>
+            {children}
           </main>
         )}
       </div>

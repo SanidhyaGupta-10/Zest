@@ -1,7 +1,6 @@
 import { useAiTask } from "./useAiTask";
 import { AiTaskType } from "@/types/api.types";
 import { QuestionItem } from "@/types/history.types";
-import { UseMutationResult } from "@tanstack/react-query";
 
 /**
  * @web\hooks\useQuestions.ts
@@ -11,7 +10,7 @@ import { UseMutationResult } from "@tanstack/react-query";
 export const useQuestions = () => {
   const taskMutation = useAiTask();
 
-  const parseQuestions = (res: any): QuestionItem[] => {
+  const parseQuestions = (res: unknown): QuestionItem[] => {
     let qList: QuestionItem[] = [];
     let parsedRes = res;
 
@@ -23,7 +22,7 @@ export const useQuestions = () => {
         } else {
           parsedRes = JSON.parse(res);
         }
-      } catch (e) {
+      } catch {
         parsedRes = res;
       }
     }
@@ -33,24 +32,29 @@ export const useQuestions = () => {
         if (typeof item === 'string') {
           return { id: idx + 1, question: item, difficulty: 'Medium', category: 'General' };
         }
+        const qItem = item as Record<string, unknown>;
         return {
-          id: item.id || idx + 1,
-          question: item.question || String(item),
-          difficulty: item.difficulty || 'Medium',
-          category: item.category || 'General'
+          id: (qItem.id as number) || idx + 1,
+          question: (qItem.question as string) || String(item),
+          difficulty: (qItem.difficulty as string) || 'Medium',
+          category: (qItem.category as string) || 'General'
         };
       });
     } else if (typeof parsedRes === 'string') {
       qList = [{ id: 1, question: parsedRes, difficulty: 'Medium', category: 'General' }];
     } else if (parsedRes && typeof parsedRes === 'object') {
-      const questionsArray = parsedRes.questions || parsedRes.result || parsedRes;
+      const obj = parsedRes as Record<string, unknown>;
+      const questionsArray = obj.questions || obj.result || obj;
       if (Array.isArray(questionsArray)) {
-        qList = questionsArray.map((item: any, idx: number) => ({
-          id: item.id || idx + 1,
-          question: item.question || String(item),
-          difficulty: item.difficulty || 'Medium',
-          category: item.category || 'General'
-        }));
+        qList = questionsArray.map((item: unknown, idx: number) => {
+          const qItem = item as Record<string, unknown>;
+          return {
+            id: (qItem.id as number) || idx + 1,
+            question: (qItem.question as string) || String(item),
+            difficulty: (qItem.difficulty as string) || 'Medium',
+            category: (qItem.category as string) || 'General'
+          };
+        });
       }
     }
 
@@ -59,16 +63,16 @@ export const useQuestions = () => {
 
   return {
     ...taskMutation,
-    mutate: (topic: string, options?: any) =>
+    mutate: (topic: string, options?: { onSuccess?: (data: QuestionItem[], variables: string, context: unknown) => void }) =>
       taskMutation.mutate({ type: AiTaskType.QUESTIONS, topic }, {
         ...options,
-        onSuccess: (data: any, variables: any, context: any) => {
+        onSuccess: (data: unknown, variables: unknown, context: unknown) => {
           const parsed = parseQuestions(data);
-          if (options?.onSuccess) options.onSuccess(parsed, variables, context);
+          if (options?.onSuccess) options.onSuccess(parsed, topic, context);
         }
       }),
-    mutateAsync: async (topic: string, options?: any) => {
-      const data = await taskMutation.mutateAsync({ type: AiTaskType.QUESTIONS, topic }, options);
+    mutateAsync: async (topic: string, options?: unknown) => {
+      const data = await taskMutation.mutateAsync({ type: AiTaskType.QUESTIONS, topic }, options as any);
       return parseQuestions(data);
     },
   };
