@@ -5,6 +5,11 @@ import { attachUser } from "../../middleware/auth";
 
 const router = Router();
 
+/**
+ * User routes.
+ *
+ * Base path: /api/user
+ */
 router.post('/sync', requireAuth(), attachUser, syncUser);
 
 export default router;

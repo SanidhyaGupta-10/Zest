@@ -1,6 +1,9 @@
 import { useAiTask } from "./useAiTask";
 import { AiTaskType } from "@/lib/api";
 
+/**
+ * Wrapper around useAiTask configured for question generation.
+ */
 export const useQuestions = () => {
   const taskMutation = useAiTask();
 

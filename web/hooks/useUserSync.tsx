@@ -3,10 +3,13 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { authApi } from "../lib/api";
 
+/**
+ * Keep backend user profile synchronized with the authenticated Clerk user.
+ */
 export const useUserSync = () => {
   const { isLoaded, isSignedIn, getToken } = useAuth();
-    const { user } = useUser();
-    const hasSynced = useRef(false);
+  const { user } = useUser();
+  const hasSynced = useRef(false);
 
   const mutation = useMutation({
     mutationFn: async () => {

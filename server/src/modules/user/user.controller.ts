@@ -2,6 +2,9 @@ import { clerkClient } from "@clerk/express";
 import { prisma } from "../../config/db";
 import { Request, Response } from "express";
 
+/**
+ * Synchronize the authenticated Clerk user into the local database.
+ */
 export const syncUser = async (req: Request, res: Response): Promise<void> => {
   try {
     // 1. Get userId from auth middleware
@@ -9,8 +12,6 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
 
     // 2. If Clerk middleware didn't catch it, check the header manually for debugging
     if (!userId) {
-
-      
       res.status(401).json({ 
         error: "Unauthorized",
         message: "No active session found. Ensure your token is valid and system clock is synced."
@@ -24,7 +25,6 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       res.status(404).json({ error: "User not found in Clerk" });
       return;
     }
-
 
     const email = clerkUser.emailAddresses[0]?.emailAddress;
     const name = `${clerkUser.firstName ?? ""} ${clerkUser.lastName ?? ""}`.trim();
@@ -46,16 +46,12 @@ export const syncUser = async (req: Request, res: Response): Promise<void> => {
       },
     });
 
-
-
     res.status(200).json({ 
       success: true,
       user 
     });
 
   } catch (error) {
-
-    
     // Check for specific Prisma/Clerk errors
     const status = (error instanceof Error && "status" in error) 
       ? (error as { status: number }).status 

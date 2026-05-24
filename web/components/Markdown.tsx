@@ -1,13 +1,10 @@
+import { MarkdownProps } from "@/types/component.types";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
-
-interface MarkdownProps {
-  content: string;
-}
 
 export default function Markdown({ content }: MarkdownProps) {
   return (
