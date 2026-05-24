@@ -5,6 +5,11 @@ import { attachUser } from "../../middleware/auth";
 
 const router = express.Router();
 
+/**
+ * Job status routes.
+ *
+ * Base path: /api/jobs
+ */
 router.get("/:jobId", requireAuth(), attachUser, getJobStatus);
 
 export default router;

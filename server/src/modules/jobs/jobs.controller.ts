@@ -3,6 +3,9 @@ import { aiQueue } from "../../queues/ai.queue";
 
 const queues = [aiQueue];
 
+/**
+ * Return queue job status for an authenticated user-owned job.
+ */
 export const getJobStatus = async (req: Request, res: Response): Promise<void> => {
   try {
     const { jobId } = req.params;

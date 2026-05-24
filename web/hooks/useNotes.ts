@@ -2,6 +2,9 @@ import { useAuth } from "@clerk/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { aiApi } from "@/lib/api";
 
+/**
+ * Upload source content for RAG ingestion.
+ */
 export const useNotes = () => {
   const { userId, getToken } = useAuth();
 
@@ -10,12 +13,7 @@ export const useNotes = () => {
       if (!userId) throw new Error("User not authenticated");
 
       const token = await getToken();
-
-
-      // Ingest the document for RAG
       const response = await aiApi.ingestDocument({ content }, token || undefined);
-
-
       return response;
     },
   });
