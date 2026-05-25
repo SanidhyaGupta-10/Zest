@@ -6,7 +6,7 @@ const groq = new Groq({ apiKey: key });
 export const groqProvider = {
   generate: async (fullPrompt: string) => {
     const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile", // Fixed: Uses current high-speed model
+      model: "llama-3.3-70b-versatile",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
         { role: "user", content: fullPrompt }],

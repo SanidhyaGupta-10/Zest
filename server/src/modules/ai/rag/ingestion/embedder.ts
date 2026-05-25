@@ -1,4 +1,4 @@
-import { genAI } from "../../../../providers/gemini.provider";
+import { genAI } from "../../../../providers/not-working-providers/gemini.provider";
 
 export const generateEmbedding = async (text: string): Promise<number[]> => {
   const DIMENSIONS = 1536;
