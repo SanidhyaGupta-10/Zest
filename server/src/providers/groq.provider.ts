@@ -14,6 +14,20 @@ export const groqProvider = {
       // response_format: { type: "json_object" },
     });
 
-    return response.choices[0]?.message?.content || "";
+    const content = response.choices[0]?.message?.content || "";
+    
+    // Clean response
+    let cleaned = content.replace(/<think>[\s\S]*?<\/think>/gi, "");
+    cleaned = cleaned.replace(/^\s*(ANSWER|Answer|RESPONSE|Response|RESULT|Result):\s*/i, "");
+    cleaned = cleaned.trim();
+    
+    if (cleaned.startsWith("```")) {
+      const match = cleaned.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+      if (match && match[1]) {
+        cleaned = match[1].trim();
+      }
+    }
+    
+    return cleaned;
   },
 };
