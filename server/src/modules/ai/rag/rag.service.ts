@@ -24,7 +24,7 @@ export const generateRAGResponse = async ({
       .join("\n\n");
 
     prompt = `
-Use the provided context only.
+You are a helpful assistant. Use the provided context to answer the question. If the context does not contain the answer, use your own general knowledge to answer clearly and concisely.
 
 CONTEXT:
 ${contextText}

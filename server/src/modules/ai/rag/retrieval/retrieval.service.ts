@@ -5,10 +5,12 @@ export const retrieveContext = async ({
   userId,
   query,
   limit = 5,
+  similarityThreshold = 0.4,
 }: {
   userId: string;
   query: string;
   limit?: number;
+  similarityThreshold?: number;
 }) => {
   // 1. Convert query → embedding
   const embedding = await generateEmbedding(query);
@@ -20,8 +22,10 @@ export const retrieveContext = async ({
     limit,
   });
 
-  // 3. Extract only content
-  const context = results.map((r) => r.content);
+  // 3. Filter by similarity (only keep chunks with >= similarityThreshold) and extract only content
+  const context = results
+    .filter((r) => r.similarity >= similarityThreshold)
+    .map((r) => r.content);
 
   return context;
 };

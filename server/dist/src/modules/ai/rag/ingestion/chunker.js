@@ -5,7 +5,7 @@
 // => The overlap between chunks is 100 characters.
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chunkText = void 0;
-const chunkText = (text, chunkSize = 300, overlap = 80) => {
+const chunkText = (text, chunkSize = 2000, overlap = 200) => {
     const chunks = [];
     let start = 0;
     while (start < text.length) {

@@ -6,6 +6,7 @@ import { getAuth } from "@clerk/express";
  * Extracts userId from Clerk's auth state and attaches it to `req.user`.
  * Must be used AFTER `clerkMiddleware()` or `requireAuth()` in the middleware chain.
  */
+
 export const attachUser = (
   req: Request,
   res: Response,

@@ -10,7 +10,6 @@ const PORT = process.env.PORT;
 async function startServer() {
     await (0, db_1.connectDB)();
     app_1.default.listen(PORT, () => {
-        console.log(`🚀 Server ready at http://localhost:${PORT}`);
     });
 }
 startServer();

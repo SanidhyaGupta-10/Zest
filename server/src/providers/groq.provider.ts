@@ -6,7 +6,7 @@ const groq = new Groq({ apiKey: key });
 export const groqProvider = {
   generate: async (fullPrompt: string) => {
     const response = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile", // Fixed: Uses current high-speed model
+      model: "llama-3.3-70b-versatile",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
         { role: "user", content: fullPrompt }],
@@ -14,6 +14,20 @@ export const groqProvider = {
       // response_format: { type: "json_object" },
     });
 
-    return response.choices[0]?.message?.content || "";
+    const content = response.choices[0]?.message?.content || "";
+    
+    // Clean response
+    let cleaned = content.replace(/<think>[\s\S]*?<\/think>/gi, "");
+    cleaned = cleaned.replace(/^\s*(ANSWER|Answer|RESPONSE|Response|RESULT|Result):\s*/i, "");
+    cleaned = cleaned.trim();
+    
+    if (cleaned.startsWith("```")) {
+      const match = cleaned.match(/^```\w*\s*([\s\S]*?)\s*```$/);
+      if (match && match[1]) {
+        cleaned = match[1].trim();
+      }
+    }
+    
+    return cleaned;
   },
 };
