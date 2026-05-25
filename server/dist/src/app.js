@@ -11,8 +11,20 @@ const express_2 = require("@clerk/express");
 const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 app.set('strict routing', false);
+const allowedOrigins = [
+    "https://zest-delta.vercel.app",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+];
 app.use((0, cors_1.default)({
-    origin: "http://localhost:3000",
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin) || origin.startsWith("http://localhost:")) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
@@ -21,10 +33,6 @@ app.use((0, cors_1.default)({
 app.use((req, res, next) => {
     const auth = req.headers.authorization;
     if (auth) {
-        console.log('[Auth Middleware] Authorization header:', auth.substring(0, 50) + '...');
-    }
-    else {
-        console.log('[Auth Middleware] No Authorization header');
     }
     next();
 });
@@ -34,7 +42,10 @@ app.get("/", (req, res) => {
     res.send("ZEST API is running 🚀");
 });
 app.get('/health', (req, res) => {
-    res.send('OK');
+    res.json({
+        message: 'ZEST API is OK👍🚀',
+        timestamp: new Date().toISOString()
+    });
 });
 app.use('/api/ai', ai_routes_1.default);
 app.use('/api/jobs', jobs_routes_1.default);

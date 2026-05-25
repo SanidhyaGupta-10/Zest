@@ -20,12 +20,10 @@ var AiTaskType;
 new bullmq_1.Worker("ai-tasks", async (job) => {
     const { type, userId, topic, content } = job.data;
     const identifier = topic || content?.slice(0, 30);
-    console.log(`🚀 Processing ${type} job for ${identifier}`);
     // Cache strategy
     const cacheKey = `ai:${type.toLowerCase()}:${userId}:${identifier?.toLowerCase()}`;
     const cached = await (0, cache_1.getCache)(cacheKey);
     if (cached) {
-        console.log("⚡ Cache hit");
         await job.updateProgress(100);
         return cached;
     }
@@ -64,7 +62,6 @@ new bullmq_1.Worker("ai-tasks", async (job) => {
                     }
                 }
                 catch (e) {
-                    console.error("Parse failed for questions, result:", result, "Error:", e);
                     // Fallback: create a single question with the raw result
                     parsedQuestions = [{
                             id: 1,
@@ -75,7 +72,6 @@ new bullmq_1.Worker("ai-tasks", async (job) => {
                 }
                 // Ensure parsedQuestions is an array
                 if (!Array.isArray(parsedQuestions)) {
-                    console.warn("Parsed questions is not an array, wrapping:", parsedQuestions);
                     parsedQuestions = [parsedQuestions];
                 }
                 saved = await db_1.prisma.question.create({
@@ -110,11 +106,9 @@ new bullmq_1.Worker("ai-tasks", async (job) => {
         // Cache result
         await (0, cache_1.setCache)(cacheKey, result, 60 * 60 * 24);
         await job.updateProgress(100);
-        console.log(`✅ ${type} completed:`, result);
         return result;
     }
     catch (error) {
-        console.error(`${type} Worker Error:`, error);
         throw error; // Let BullMQ handle retries
     }
 }, {
