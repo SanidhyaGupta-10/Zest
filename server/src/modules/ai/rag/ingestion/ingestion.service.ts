@@ -2,6 +2,7 @@ import { storeEmbedding } from "../store/vector.store";
 import { chunkText } from "./chunker";
 import { generateEmbedding } from "./embedder";
 import https from "https";
+import { prisma } from "../../../../config/db";
 
 const isUrl = (str: string): boolean => {
   try {
@@ -47,8 +48,9 @@ export const ingestDocument = async ({
   content: string;
 }) => {
   let textToProcess = content;
+  const contentIsUrl = isUrl(content);
 
-  if (isUrl(content)) {
+  if (contentIsUrl) {
     try {
       console.log(`Ingesting content from URL via Jina Reader: ${content}`);
       const fetchedContent = await fetchJinaReader(content);
@@ -73,6 +75,29 @@ export const ingestDocument = async ({
       content: chunk,
       embedding,
     });
+  }
+
+  // 3. Save to Note database table so it appears in the user's Notes History
+  let topic = "Ingested Knowledge";
+  if (contentIsUrl) {
+    topic = `Web: ${content.replace(/^https?:\/\/(www\.)?/, "").slice(0, 45)}`;
+  } else {
+    const firstLine = textToProcess.split("\n")[0]?.replace(/[#*`]/g, "").trim();
+    if (firstLine) {
+      topic = firstLine.slice(0, 50);
+    }
+  }
+
+  try {
+    await prisma.note.create({
+      data: {
+        userId,
+        topic,
+        notes: textToProcess,
+      },
+    });
+  } catch (dbErr) {
+    console.error("Failed to save note to Note history table:", dbErr);
   }
 
   return { success: true, chunks: chunks.length };

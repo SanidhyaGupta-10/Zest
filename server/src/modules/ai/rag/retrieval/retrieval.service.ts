@@ -20,8 +20,10 @@ export const retrieveContext = async ({
     limit,
   });
 
-  // 3. Extract only content
-  const context = results.map((r) => r.content);
+  // 3. Filter by similarity (only keep chunks with >= 0.4 similarity) and extract only content
+  const context = results
+    .filter((r) => r.similarity >= 0.4)
+    .map((r) => r.content);
 
   return context;
 };
