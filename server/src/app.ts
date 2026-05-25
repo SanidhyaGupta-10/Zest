@@ -10,13 +10,19 @@ app.set('strict routing', false);
 
 const allowedOrigins = [
   "https://zest-delta.vercel.app",
-  "http://localhost:3000",
   "http://127.0.0.1:3000"
 ];
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || origin.startsWith("http://localhost:")) {
+    if (
+      !origin || 
+      allowedOrigins.includes(origin) || 
+      origin.startsWith("http://localhost:") ||
+      origin.startsWith("https://localhost:") ||
+      origin.startsWith("http://127.0.0.1:") ||
+      origin.startsWith("https://127.0.0.1:")
+    ) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));

@@ -1,7 +1,7 @@
 // What it is doing?
 // => It is chunking the text into smaller chunks.
-// => The chunks are of size 500 characters.
-// => The overlap between chunks is 100 characters.
+// => The chunks are of size 2000 characters by default (DEFAULT_CHUNK_SIZE = 2000).
+// => The overlap between chunks is 200 characters by default (DEFAULT_CHUNK_OVERLAP = 200).
 
 export const chunkText = (
   text: string,

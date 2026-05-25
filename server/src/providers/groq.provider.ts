@@ -22,7 +22,7 @@ export const groqProvider = {
     cleaned = cleaned.trim();
     
     if (cleaned.startsWith("```")) {
-      const match = cleaned.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+      const match = cleaned.match(/^```\w*\s*([\s\S]*?)\s*```$/);
       if (match && match[1]) {
         cleaned = match[1].trim();
       }

@@ -14,27 +14,64 @@ const isUrl = (str: string): boolean => {
 };
 
 const fetchJinaReader = (targetUrl: string): Promise<string> => {
+  const apiKey = process.env.JINA_API_KEY;
+  if (!apiKey || apiKey.trim() === "") {
+    return Promise.reject(new Error("JINA_API_KEY environment variable is required"));
+  }
+
   return new Promise((resolve, reject) => {
-    // Trim the target URL and encode it to construct a clean Jina Reader URL
-    const url = `https://r.jina.ai/${targetUrl.trim()}`;
+    // Sanitize and encode target URL portion to prevent malformed URL requests
+    const encodedTargetUrl = encodeURI(targetUrl.trim());
+    const url = `https://r.jina.ai/${encodedTargetUrl}`;
     const options = {
       method: "GET",
       headers: {
-        "Authorization": `Bearer ${process.env.JINA_API_KEY || "jina_4107debeabd242b7adb7976256423134AMC51eRBlIZGK774Xx-kk81_LMVG"}`
+        "Authorization": `Bearer ${apiKey}`
       }
     };
 
-    https.get(url, options, (res) => {
-      let data = "";
+    const TIMEOUT_MS = 25000;
 
+    const req = https.get(url, options, (res) => {
+      // 1. Validate status codes (reject non-2xx)
+      const statusCode = res.statusCode || 0;
+      if (statusCode < 200 || statusCode >= 300) {
+        res.resume(); // Consume response data to free up memory
+        req.setTimeout(0); // Clear timeout
+        reject(new Error(`HTTP ${statusCode}`));
+        return;
+      }
+
+      let data = "";
+      let receivedBytes = 0;
+      const MAX_BYTES = 5 * 1024 * 1024; // 5MB maximum response size limit to prevent Denial of Service
+
+      // 2. Track received bytes and reject if exceeded
       res.on("data", (chunk) => {
+        receivedBytes += chunk.length;
+        if (receivedBytes > MAX_BYTES) {
+          res.destroy(); // Terminate the response stream immediately
+          req.setTimeout(0); // Clear timeout
+          reject(new Error("Response size exceeded maximum limit of 5MB"));
+          return;
+        }
         data += chunk;
       });
 
       res.on("end", () => {
+        req.setTimeout(0); // Clear timeout
         resolve(data);
       });
-    }).on("error", (e) => {
+    });
+
+    // 3. Enforce request timeout
+    req.setTimeout(TIMEOUT_MS, () => {
+      req.destroy();
+      reject(new Error("Request timeout"));
+    });
+
+    req.on("error", (e) => {
+      req.setTimeout(0); // Clear timeout
       reject(e);
     });
   });
@@ -88,12 +125,19 @@ export const ingestDocument = async ({
     }
   }
 
+  // 4. Truncate notes if they exceed database limits to prevent DB bloat
+  const MAX_PERSIST_LENGTH = 100000; // ~100k characters max (~20-30 pages of text)
+  let notesToPersist = textToProcess;
+  if (notesToPersist.length > MAX_PERSIST_LENGTH) {
+    notesToPersist = notesToPersist.slice(0, MAX_PERSIST_LENGTH) + "\n\n... [Content Truncated to prevent DB Bloat]";
+  }
+
   try {
     await prisma.note.create({
       data: {
         userId,
         topic,
-        notes: textToProcess,
+        notes: notesToPersist,
       },
     });
   } catch (dbErr) {

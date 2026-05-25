@@ -1,12 +1,11 @@
 import { groqProvider } from "./groq.provider";
 
-// Multi-provider fallback ensures responses are under 2-3 seconds by prioritizing fast models (Groq)
+// Generates high-speed responses using the Groq provider (Llama 3.3 70B)
 export const generateWithFallback = async (fullPrompt: string) => {
-  // 1️⃣ HIGH SPEED: Groq (Llama 3.3 70B)
   try {
     return await groqProvider.generate(fullPrompt);
   } catch (err) {
-    throw new Error("Groq provider failed");
+    throw new Error("Groq provider failed", { cause: err instanceof Error ? err : new Error(String(err)) });
   }
 };
 
