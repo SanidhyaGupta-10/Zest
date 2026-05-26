@@ -1,0 +1,28 @@
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: zest-server
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./server/.env
+    environment:
+      - PORT=4000
+    restart: always
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: zest-web
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./web/.env
+    environment:
+      - PORT=3000
+    depends_on:
+      - server
+    restart: always
