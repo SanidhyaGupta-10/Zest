@@ -72,7 +72,7 @@ export const chatController = async (req: Request, res: Response): Promise<void>
     return;
 
   } catch (error) {
-
+    console.error("[ChatController] Error:", error);
     res.status(500).json({ success: false, message: "Processing failed" });
     return;
   }
@@ -122,7 +122,7 @@ export const taskController = async (req: Request, res: Response): Promise<void>
     return;
 
   } catch (error) {
-
+    console.error("[TaskController] Error:", error);
     res.status(500).json({ 
       success: false, 
       message: "Failed to queue task" 
@@ -208,7 +208,7 @@ export const getUserSummaries = async (req: Request, res: Response): Promise<voi
       summaries 
     });
   } catch (error) {
-
+    console.error("[getUserSummaries] Error:", error);
     res.status(500).json({ 
       success: false, 
       message: error instanceof Error ? error.message : "Unknown error" 
@@ -244,7 +244,7 @@ export const getUserNotes = async (req: Request, res: Response): Promise<void> =
       notes 
     });
   } catch (error) {
-
+    console.error("[getUserNotes] Error:", error);
     res.status(500).json({ 
       success: false, 
       message: error instanceof Error ? error.message : "Unknown error" 
@@ -280,7 +280,7 @@ export const getUserQuestions = async (req: Request, res: Response): Promise<voi
       questions 
     });
   } catch (error) {
-
+    console.error("[getUserQuestions] Error:", error);
     res.status(500).json({ 
       success: false, 
       message: error instanceof Error ? error.message : "Unknown error"
@@ -325,8 +325,7 @@ export const ingestDocumentController = async (
     });
 
   } catch (error) {
-
-
+    console.error("[IngestDocument] Error:", error);
     res.status(500).json({
       success: false,
       message: "Failed to ingest document",

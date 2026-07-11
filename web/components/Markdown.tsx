@@ -1,3 +1,5 @@
+"use client";
+
 import { MarkdownProps } from "@/types/component.types";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -5,6 +7,55 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
+
+/**
+ * Extracted CodeBlock component to avoid React Hooks violation.
+ * useState cannot be called inside a render prop (ReactMarkdown's `code` component).
+ */
+function CodeBlock({ className, children, ...props }: any) {
+  const match = /language-(\w+)/.exec(className || "");
+  const [copied, setCopied] = useState(false);
+  const inline = !match && !String(children).includes("\n");
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(String(children));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (inline) {
+    return (
+      <code className="bg-white/10 px-1.5 py-0.5 rounded text-blue-300 font-mono text-xs" {...props}>
+        {children}
+      </code>
+    );
+  }
+
+  return (
+    <div className="relative group my-6 rounded-xl overflow-hidden border border-white/10 shadow-2xl">
+      <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10 backdrop-blur-md">
+        <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">
+          {match?.[1] || "code"}
+        </span>
+        <button
+          onClick={handleCopy}
+          className="p-1.5 rounded-md hover:bg-white/10 transition-colors text-white/40 hover:text-white"
+        >
+          {copied ? <Check className="size-3 text-green-400" /> : <Copy className="size-3" />}
+        </button>
+      </div>
+      <SyntaxHighlighter
+        style={vscDarkPlus}
+        language={match?.[1] || "text"}
+        PreTag="div"
+        className="bg-black/40! m-0! p-4! text-sm! scrollbar-thin"
+        {...props}
+      >
+        {String(children).replace(/\n$/, "")}
+      </SyntaxHighlighter>
+    </div>
+  );
+}
 
 export default function Markdown({ content }: MarkdownProps) {
   return (
@@ -19,49 +70,7 @@ export default function Markdown({ content }: MarkdownProps) {
           ul: ({ children }) => <ul className="list-disc pl-6 mb-4 space-y-2 text-gray-300">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal pl-6 mb-4 space-y-2 text-gray-300">{children}</ol>,
           li: ({ children }) => <li className="pl-1">{children}</li>,
-          code({ node, inline, className, children, ...props }: any) {
-            const match = /language-(\w+)/.exec(className || "");
-            const [copied, setCopied] = useState(false);
-
-            const handleCopy = () => {
-              navigator.clipboard.writeText(String(children));
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            };
-
-            if (inline) {
-              return (
-                <code className="bg-white/10 px-1.5 py-0.5 rounded text-blue-300 font-mono text-xs" {...props}>
-                  {children}
-                </code>
-              );
-            }
-
-            return (
-              <div className="relative group my-6 rounded-xl overflow-hidden border border-white/10 shadow-2xl">
-                <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10 backdrop-blur-md">
-                  <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">
-                    {match?.[1] || "code"}
-                  </span>
-                  <button
-                    onClick={handleCopy}
-                    className="p-1.5 rounded-md hover:bg-white/10 transition-colors text-white/40 hover:text-white"
-                  >
-                    {copied ? <Check className="size-3 text-green-400" /> : <Copy className="size-3" />}
-                  </button>
-                </div>
-                <SyntaxHighlighter
-                  style={vscDarkPlus}
-                  language={match?.[1] || "text"}
-                  PreTag="div"
-                  className="bg-black/40! m-0! p-4! text-sm! scrollbar-thin"
-                  {...props}
-                >
-                  {String(children).replace(/\n$/, "")}
-                </SyntaxHighlighter>
-              </div>
-            );
-          },
+          code: CodeBlock,
           blockquote: ({ children }) => (
             <blockquote className="border-l-4 border-blue-500/50 pl-4 py-1 italic text-gray-400 bg-blue-500/5 rounded-r-lg my-4">
               {children}
@@ -84,4 +93,3 @@ export default function Markdown({ content }: MarkdownProps) {
     </div>
   );
 }
-

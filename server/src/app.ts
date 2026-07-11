@@ -1,6 +1,6 @@
 import express from "express";
 import aiRoutes from './modules/ai/ai.routes'
-import jobRoutes from './modules/jobs/jobs.routes'
+import jobRoutes from './modules/job/job.routes'
 import userRoutes from './modules/user/user.routes'
 import { clerkMiddleware } from "@clerk/express";
 import cors from 'cors'
@@ -32,15 +32,6 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
-
-// Log incoming auth header (first 50 chars of token)
-app.use((req, res, next) => {
-  const auth = req.headers.authorization;
-  if (auth) {
-
-  }
-  next();
-});
 
 app.use(clerkMiddleware())
 app.use(express.json());
