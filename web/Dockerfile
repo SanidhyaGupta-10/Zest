@@ -3,8 +3,8 @@ FROM oven/bun:1-slim AS base
 
 WORKDIR /app
 
-# Copy package files and install dependencies
-COPY package.json package-lock.json* ./
+# Copy package files (supports both npm and bun lockfiles)
+COPY package.json bun.lockb* bun.lock* package-lock.json* ./
 RUN bun install
 
 # Copy the rest of the application files

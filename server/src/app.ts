@@ -1,6 +1,6 @@
 import express from "express";
 import aiRoutes from './modules/ai/ai.routes'
-import jobRoutes from './modules/job/job.routes'
+import jobRoutes from './modules/jobs/jobs.routes'
 import userRoutes from './modules/user/user.routes'
 import { clerkMiddleware } from "@clerk/express";
 import cors from 'cors'

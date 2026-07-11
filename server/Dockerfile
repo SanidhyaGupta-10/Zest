@@ -6,8 +6,8 @@ WORKDIR /app
 # Install openssl and ca-certificates (needed by Prisma to connect to secure databases)
 RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy package files (supports both npm and bun lockfiles)
+COPY package.json bun.lockb* bun.lock* package-lock.json* ./
 
 # Install dependencies using Bun
 RUN bun install

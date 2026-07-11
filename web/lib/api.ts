@@ -18,9 +18,6 @@ export const createApiClient = (token?: string | null) => {
 
   if (token) {
     client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-  } else {
-
   }
 
   client.interceptors.response.use(
