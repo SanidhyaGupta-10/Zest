@@ -1,25 +1,14 @@
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import { api } from './axios'
 
 // Response interceptor: log all responses
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (response) => { return response },
+  (error) => { return Promise.reject(error)}
 );
 
 // Helper to create an axios instance with a custom token
 export const createApiClient = (token?: string | null) => {
-  const client = axios.create({
+  const client = api.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api',
     headers: {
       'Content-Type': 'application/json',
