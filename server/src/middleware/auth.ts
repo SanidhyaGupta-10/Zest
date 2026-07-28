@@ -1,11 +1,6 @@
+// Auth Middleware: Extracts authenticated Clerk userId and attaches it to req.user for downstream controllers.
 import { Request, Response, NextFunction } from "express";
 import { getAuth } from "@clerk/express";
-
-/**
- * Auth Middleware
- * Extracts userId from Clerk's auth state and attaches it to `req.user`.
- * Must be used AFTER `clerkMiddleware()` or `requireAuth()` in the middleware chain.
- */
 
 export const attachUser = (
   req: Request,

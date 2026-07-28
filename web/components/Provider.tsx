@@ -1,4 +1,6 @@
+// React Query Provider: Wraps application tree with queryClient instance for global caching and state management.
 "use client";
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 

@@ -1,3 +1,4 @@
+// Prisma database connection manager with connection-pool configuration for Neon PostgreSQL.
 import { PrismaClient } from "@prisma/client";
 import "dotenv/config";
 
@@ -11,17 +12,17 @@ if (!dbUrl) {
   throw new Error("DATABASE_URL is not defined in environment variables.");
 }
 
-// FIX: Force limit connections to 1 and add pgbouncer for free-tier DBs
-// This prevents the "Closed" error caused by too many open connections.
+// Append PgBouncer parameters and restrict pool size for serverless database stability
 const params = "connect_timeout=30&sslmode=require&connection_limit=1&pgbouncer=true";
 const enhancedUrl = dbUrl.includes("?") 
   ? `${dbUrl}&${params}` 
   : `${dbUrl}?${params}`;
 
+// Singleton Prisma instance prevention in development mode
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    log: ["error", "warn"], // Cleaner logs for production
+    log: ["error", "warn"],
     datasources: {
       db: { url: enhancedUrl },
     },
@@ -29,12 +30,12 @@ export const prisma =
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
+// Explicit connection test called during server launch sequence
 export async function connectDB() {
   try {
     await prisma.$connect();
     console.log("⚡ Database connected successfully.");
   } catch (err) {
     console.error("❌ Database connection failed:", err);
-    // Don't exit(1) here; let Render retry the connection on next request
   }
 }

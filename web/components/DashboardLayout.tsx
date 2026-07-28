@@ -1,3 +1,4 @@
+// Main Dashboard Layout wrapper: Combines responsive Sidebar navigation and Navbar header.
 "use client";
 
 import { useState } from "react";

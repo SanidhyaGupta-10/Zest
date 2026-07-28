@@ -1,8 +1,9 @@
+// Redis-backed rate limiter: Enforces sliding request limits per authenticated user to prevent AI API abuse.
 import { Request, Response, NextFunction } from "express";
 import { redisConnection } from "../queues/connection";
 
-const WINDOW = 60; // seconds
-const MAX_REQUESTS = 10; // per user per window
+const WINDOW = 60; // Window duration in seconds
+const MAX_REQUESTS = 10; // Max requests allowed per user within the window
 
 export const rateLimit = async (
   req: Request,
@@ -21,14 +22,13 @@ export const rateLimit = async (
     }
 
     const key = `rate:${userId}`;
-
-    // get current count
     const current = await redisConnection.get(key);
-
     const remaining = MAX_REQUESTS - (Number(current) || 0);
+
     res.setHeader("X-RateLimit-Limit", MAX_REQUESTS);
     res.setHeader("X-RateLimit-Remaining", Math.max(remaining - 1, 0));
 
+    // Reject request if rate limit exceeded
     if (current && Number(current) >= MAX_REQUESTS) {
       res.status(429).json({
         success: false,
@@ -37,17 +37,16 @@ export const rateLimit = async (
       return;
     }
 
+    // Set initial window count or increment existing request counter
     if (!current) {
-      // first request → set with expiry
       await redisConnection.set(key, 1, "EX", WINDOW);
     } else {
-      // increment
       await redisConnection.incr(key);
     }
 
     next();
   } catch (err) {
     console.error("Rate limit error:", err);
-    next(); // don't block if redis fails
+    next(); // Fallback: allow request if Redis temporarily fails
   }
 };

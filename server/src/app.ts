@@ -1,18 +1,24 @@
+// Express application setup and core global middleware config.
 import express from "express";
-import aiRoutes from './modules/ai/ai.routes'
-import jobRoutes from './modules/jobs/jobs.routes'
-import userRoutes from './modules/user/user.routes'
+import aiRoutes from './modules/ai/ai.routes';
+import jobRoutes from './modules/jobs/jobs.routes';
+import userRoutes from './modules/user/user.routes';
 import { clerkMiddleware } from "@clerk/express";
-import cors from 'cors'
+import cors from 'cors';
+
 const app = express();
 
+// Disable strict routing so trailing slashes don't mismatch endpoints
 app.set('strict routing', false);
 
+// List of allowed origins for cross-origin requests
 const allowedOrigins = [
+  // TODO: Replace with your new Vercel frontend URL after deploying frontend
   "https://zest-delta.vercel.app",
   "http://127.0.0.1:3000"
 ];
 
+// Configure CORS policy to allow cookies/auth headers from trusted domains
 app.use(cors({
   origin: (origin, callback) => {
     if (
@@ -33,9 +39,11 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-app.use(clerkMiddleware())
+// Global auth & body parser middleware
+app.use(clerkMiddleware());
 app.use(express.json());
 
+// Health check endpoints
 app.get("/", (req, res) => {
   res.send("ZEST API is running 🚀");
 });
@@ -47,8 +55,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.use('/api/ai', aiRoutes)
-app.use('/api/jobs', jobRoutes)
-app.use('/api/auth', userRoutes)
+// API Module Route Registration
+app.use('/api/ai', aiRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/api/auth', userRoutes);
 
 export default app;

@@ -1,13 +1,14 @@
-import axios from 'axios'
-import { api } from './axios'
+// Frontend API Methods: Defines typed HTTP callers for Auth, Chat, RAG Ingestion, and Job Queues.
+import axios from 'axios';
+import { api } from './axios';
 
-// Response interceptor: log all responses
+// Log responses and transparently pass errors downstream
 api.interceptors.response.use(
-  (response) => { return response },
-  (error) => { return Promise.reject(error)}
+  (response) => response,
+  (error) => Promise.reject(error)
 );
 
-// Helper to create an axios instance with a custom token
+// Factory function generating an Axios client attached with Clerk Bearer token
 export const createApiClient = (token?: string | null) => {
   const client = axios.create({
     baseURL: api.defaults.baseURL,
@@ -21,23 +22,21 @@ export const createApiClient = (token?: string | null) => {
   }
 
   client.interceptors.response.use(
-    (response) => {
-      return response;
-    },
-    (error) => {
-      return Promise.reject(error);
-    }
+    (response) => response,
+    (error) => Promise.reject(error)
   );
 
   return client;
 };
 
+// Supported async background task types
 export enum AiTaskType {
   QUESTIONS = "QUESTIONS",
   SUMMARY = "SUMMARY",
   NOTES = "NOTES",
 }
 
+// Auth endpoints
 export const authApi = {
   syncUser: (token: string) => {
     return api.post('/auth/sync', {}, {
@@ -48,50 +47,48 @@ export const authApi = {
   }
 };
 
+// AI & Queue management endpoints
 export const aiApi = {
-  // Chat - returns { chatId, answer } directly (sync)
   chat: (data: { query: string; chatId?: string }, token?: string) => {
     const client = token ? createApiClient(token) : api;
     return client.post('/ai/chat', data);
   },
 
-  // Document Ingestion
   ingestDocument: (data: { content: string }, token?: string) => {
     const client = token ? createApiClient(token) : api;
     return client.post('/ai/ingest', data);
   },
 
-  // History
   getChats: (token?: string) => {
     const client = token ? createApiClient(token) : api;
     return client.get('/ai/chats');
   },
+  
   getChatMessages: (chatId: string, token?: string) => {
     const client = token ? createApiClient(token) : api;
     return client.get(`/ai/chats/${chatId}`);
   },
 
-  // User Content History
   getUserSummaries: (token?: string) => {
     const client = token ? createApiClient(token) : api;
     return client.get('/ai/history/summaries');
   },
+  
   getUserNotes: (token?: string) => {
     const client = token ? createApiClient(token) : api;
     return client.get('/ai/history/notes');
   },
+  
   getUserQuestions: (token?: string) => {
     const client = token ? createApiClient(token) : api;
     return client.get('/ai/history/questions');
   },
 
-  // Unified Tasks - returns { jobId } (async)
   createTask: (data: { type: AiTaskType; topic?: string; content?: string }, token?: string) => {
     const client = token ? createApiClient(token) : api;
     return client.post('/ai/tasks', data);
   },
 
-  // Job Status - returns { status, result }
   getJobStatus: (jobId: string, token?: string) => {
     const client = token ? createApiClient(token) : api;
     return client.get(`/jobs/${jobId}`);

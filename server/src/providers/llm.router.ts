@@ -1,6 +1,7 @@
+// LLM Router: Single entry point for generating completions with fallback support.
 import { groqProvider } from "./groq.provider";
 
-// Generates high-speed responses using the Groq provider (Llama 3.3 70B)
+// Primary completion function wrapping the Groq provider execution
 export const generateWithFallback = async (fullPrompt: string) => {
   try {
     return await groqProvider.generate(fullPrompt);
@@ -9,6 +10,6 @@ export const generateWithFallback = async (fullPrompt: string) => {
   }
 };
 
-// Aliases for compatibility with different modules
+// Aliases exported for backwards compatibility across task modules
 export const generateFromLLM = generateWithFallback;
 export const generateQuestionsWithFallback = generateWithFallback;
