@@ -1,6 +1,10 @@
 // Frontend API Methods: Defines typed HTTP callers for Auth, Chat, RAG Ingestion, and Job Queues.
 import axios from 'axios';
-import { api } from './axios';
+
+export const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL!,
+  withCredentials: true,
+});
 
 // Log responses and transparently pass errors downstream
 api.interceptors.response.use(

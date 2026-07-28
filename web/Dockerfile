@@ -1,5 +1,5 @@
-# Node.js production image for Next.js frontend
-FROM node:20-alpine AS base
+# Node.js production image for Next.js web application
+FROM node:20-slim AS base
 
 WORKDIR /app
 
