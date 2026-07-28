@@ -1,13 +1,16 @@
 # Node.js production image for Express backend
-FROM node:20-alpine AS base
+FROM node:20-slim AS base
 
 WORKDIR /app
 
-# Copy dependency manifests first to leverage Docker layer caching
+# Copy package files
 COPY package.json package-lock.json* ./
 
-# Install production dependencies
-RUN npm ci --only=production
+# Configure npm registry fetch retries and install production dependencies
+RUN npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm ci --omit=dev
 
 # Copy Prisma schema and generate client
 COPY prisma ./prisma/

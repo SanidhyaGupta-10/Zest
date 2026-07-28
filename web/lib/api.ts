@@ -1,10 +1,6 @@
 // Frontend API Methods: Defines typed HTTP callers for Auth, Chat, RAG Ingestion, and Job Queues.
 import axios from 'axios';
-
-export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL!,
-  withCredentials: true,
-});
+import { api } from './axios';
 
 // Log responses and transparently pass errors downstream
 api.interceptors.response.use(
@@ -67,7 +63,7 @@ export const aiApi = {
     const client = token ? createApiClient(token) : api;
     return client.get('/ai/chats');
   },
-  
+
   getChatMessages: (chatId: string, token?: string) => {
     const client = token ? createApiClient(token) : api;
     return client.get(`/ai/chats/${chatId}`);
@@ -77,12 +73,12 @@ export const aiApi = {
     const client = token ? createApiClient(token) : api;
     return client.get('/ai/history/summaries');
   },
-  
+
   getUserNotes: (token?: string) => {
     const client = token ? createApiClient(token) : api;
     return client.get('/ai/history/notes');
   },
-  
+
   getUserQuestions: (token?: string) => {
     const client = token ? createApiClient(token) : api;
     return client.get('/ai/history/questions');

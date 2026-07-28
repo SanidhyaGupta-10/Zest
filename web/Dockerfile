@@ -6,8 +6,11 @@ WORKDIR /app
 # Copy dependency manifests
 COPY package.json package-lock.json* ./
 
-# Install dependencies
-RUN npm ci
+# Configure npm registry fetch retries and install dependencies
+RUN npm config set fetch-retries 5 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm ci
 
 # Copy application source code
 COPY . .
