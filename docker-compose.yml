@@ -1,4 +1,7 @@
+version: '3.8'
+
 services:
+  # Backend Express Server
   server:
     build:
       context: ./server
@@ -12,12 +15,13 @@ services:
       - PORT=4000
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 15s
 
+  # Frontend Next.js Web App
   web:
     build:
       context: ./web

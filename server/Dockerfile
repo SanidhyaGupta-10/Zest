@@ -1,26 +1,27 @@
-# Use the official Oven Bun image
-FROM oven/bun:1-slim
+# Node.js production image for Express backend
+FROM node:20-alpine AS base
 
 WORKDIR /app
 
-# Install openssl and ca-certificates (needed by Prisma to connect to secure databases)
-RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+# Copy dependency manifests first to leverage Docker layer caching
+COPY package.json package-lock.json* ./
 
-# Copy package files (supports both npm and bun lockfiles)
-COPY package.json bun.lockb* bun.lock* package-lock.json* ./
+# Install production dependencies
+RUN npm ci --only=production
 
-# Install dependencies using Bun
-RUN bun install
-
-# Copy Prisma directory and generate Prisma client
+# Copy Prisma schema and generate client
 COPY prisma ./prisma/
-RUN bunx prisma generate
+RUN npx prisma generate
 
-# Copy the rest of the application files
+# Copy source code and build TypeScript project
 COPY . .
+RUN npm run build
 
-# Expose the server port
+# Expose backend port
 EXPOSE 4000
 
-# Start the server using Bun
-CMD ["bun", "run", "server.ts"]
+ENV PORT=4000
+ENV NODE_ENV=production
+
+# Start compiled server
+CMD ["npm", "run", "start"]

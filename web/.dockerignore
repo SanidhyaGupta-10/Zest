@@ -1,7 +1,7 @@
 node_modules
-dist
-.env*.local
-.git
-*.log
 .next
-.vercel
+.env
+.env.local
+npm-debug.log
+.git
+.idea
