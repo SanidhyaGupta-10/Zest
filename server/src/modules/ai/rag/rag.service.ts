@@ -12,7 +12,13 @@ export const generateRAGResponse = async ({
   query: string;
 }) => {
   // 1. Retrieval Step: Try retrieving context from vector DB
-  const context = await retrieveContext({ userId, query });
+  let context: string[] = [];
+  try {
+    context = await retrieveContext({ userId, query });
+  } catch (err) {
+    console.warn("Context retrieval failed, falling back to direct LLM:", err);
+    context = [];
+  }
   const contextExists = context && context.length > 0;
 
   let prompt: string;

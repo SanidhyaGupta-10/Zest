@@ -1,52 +1,92 @@
-import Groq from "groq-sdk";
+/**
+ * Embedding Generator
+ * Uses HuggingFace free Inference API with sentence-transformers/all-MiniLM-L6-v2
+ * Output: 384-dimensional vectors (padded to match DB schema)
+ * 
+ * Groq no longer provides embedding models (removed in 2025).
+ * HuggingFace Inference API is free for this model.
+ */
 
-const apiKey = process.env.GROQ_API_KEY;
-if (!apiKey || apiKey.trim() === "") {
-  throw new Error("GROQ_API_KEY must be set");
-}
+const HF_MODEL = "sentence-transformers/all-MiniLM-L6-v2";
+const HF_API_URL = `https://api-inference.huggingface.co/pipeline/feature-extraction/${HF_MODEL}`;
 
-const groq = new Groq({ apiKey });
+// Target dimension must match the DB column: vector(1536)
+const TARGET_DIMENSIONS = 1536;
 
 export const generateEmbedding = async (text: string): Promise<number[]> => {
-  const targetDimensions = 1536; // DB vector(1536) schema dimensions
-
-  if (!text || text.trim().length === 0) return Array(targetDimensions).fill(0);
+  if (!text || text.trim().length === 0) return Array(TARGET_DIMENSIONS).fill(0);
 
   try {
-    const response = await groq.embeddings.create({
-      model: "nomic-embed-text-v1.5",
-      input: text,
+    const response = await fetch(HF_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        inputs: text.slice(0, 512), // HF free tier has token limits
+        options: { wait_for_model: true },
+      }),
     });
 
-    const values = response.data[0]?.embedding;
-
-    if (!values || !Array.isArray(values) || values.length === 0) {
-      console.warn("No embedding values returned, returning zero vector");
-      return Array(targetDimensions).fill(0);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.warn(`HuggingFace embedding API returned ${response.status}: ${errorText}`);
+      return generateFallbackEmbedding(text);
     }
 
-    // Validate embedding values
-    const validEmbeddings = values.filter((val): val is number => typeof val === "number");
-    if (validEmbeddings.length === 0) {
-      console.warn("Invalid embedding values, returning zero vector");
-      return Array(targetDimensions).fill(0);
+    const data = await response.json();
+
+    // HF returns number[] for single string input
+    let embedding: number[];
+    if (Array.isArray(data) && typeof data[0] === "number") {
+      embedding = data as number[];
+    } else if (Array.isArray(data) && Array.isArray(data[0])) {
+      // Nested array — take first
+      embedding = data[0] as number[];
+    } else {
+      console.warn("Unexpected HF response shape, using fallback");
+      return generateFallbackEmbedding(text);
     }
 
-    // If embedding is 768 dimensions (from nomic-embed-text-v1.5), duplicate to 1536 to match DB schema
-    if (validEmbeddings.length === 768) {
-      return [...validEmbeddings, ...validEmbeddings];
-    }
-
-    // Pad or trim to targetDimensions (1536) if different
-    if (validEmbeddings.length < targetDimensions) {
-      const padding = Array(targetDimensions - validEmbeddings.length).fill(0);
-      return [...validEmbeddings, ...padding];
-    }
-
-    return validEmbeddings.slice(0, targetDimensions);
+    // Pad to TARGET_DIMENSIONS by repeating the embedding
+    return padToTarget(embedding);
   } catch (error) {
-    console.error("Error generating embedding via Groq:", error);
-    return Array(targetDimensions).fill(0);
+    console.error("Error generating embedding via HuggingFace:", error);
+    return generateFallbackEmbedding(text);
   }
 };
+
+/**
+ * Pad a short embedding to TARGET_DIMENSIONS by cycling values
+ */
+function padToTarget(embedding: number[]): number[] {
+  if (embedding.length >= TARGET_DIMENSIONS) {
+    return embedding.slice(0, TARGET_DIMENSIONS);
+  }
+
+  const result = new Array(TARGET_DIMENSIONS);
+  for (let i = 0; i < TARGET_DIMENSIONS; i++) {
+    result[i] = embedding[i % embedding.length];
+  }
+  return result;
+}
+
+/**
+ * Deterministic fallback: generate a pseudo-embedding from text hash
+ * so the app never crashes even if all external APIs are down.
+ */
+function generateFallbackEmbedding(text: string): number[] {
+  const result = new Array(TARGET_DIMENSIONS);
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    const char = text.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0; // Convert to 32bit integer
+  }
+
+  for (let i = 0; i < TARGET_DIMENSIONS; i++) {
+    // Simple deterministic pseudo-random based on hash + position
+    const seed = hash + i * 2654435761;
+    result[i] = ((seed & 0x7fffffff) / 0x7fffffff) * 2 - 1; // Normalize to [-1, 1]
+  }
+  return result;
+}
 

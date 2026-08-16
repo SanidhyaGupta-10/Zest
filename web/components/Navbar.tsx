@@ -20,10 +20,22 @@ function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
             >
               <Menu className="size-5" />
             </button>
-            <Link href="/" className="flex items-center gap-2 group">
-              <span className="text-xl font-black tracking-tighter bg-linear-to-r from-white via-white to-white/40 bg-clip-text text-transparent group-hover:to-white transition-all">
-                ZEST
-              </span>
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="size-8 rounded-full overflow-hidden border border-blue-500/30 shadow-[0_0_10px_rgba(59,130,246,0.3)] group-hover:scale-105 transition-transform">
+                <img
+                  src="/zest-dragon-logo.jpg"
+                  alt="Zest Dragon Logo"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-black tracking-tighter bg-linear-to-r from-white via-white to-white/40 bg-clip-text text-transparent group-hover:to-white transition-all">
+                  ZEST
+                </span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30 font-bold uppercase tracking-wider">
+                  Alpha
+                </span>
+              </div>
             </Link>
           </div>
 

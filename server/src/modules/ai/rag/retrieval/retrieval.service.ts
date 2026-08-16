@@ -12,20 +12,25 @@ export const retrieveContext = async ({
   limit?: number;
   similarityThreshold?: number;
 }) => {
-  // 1. Convert query → embedding
-  const embedding = await generateEmbedding(query);
+  try {
+    // 1. Convert query → embedding
+    const embedding = await generateEmbedding(query);
 
-  // 2. Search similar chunks
-  const results = await searchSimilar({
-    userId,
-    embedding,
-    limit,
-  });
+    // 2. Search similar chunks
+    const results = await searchSimilar({
+      userId,
+      embedding,
+      limit,
+    });
 
-  // 3. Filter by similarity (only keep chunks with >= similarityThreshold) and extract only content
-  const context = results
-    .filter((r) => r.similarity >= similarityThreshold)
-    .map((r) => r.content);
+    // 3. Filter by similarity (only keep chunks with >= similarityThreshold) and extract only content
+    const context = results
+      .filter((r) => r.similarity >= similarityThreshold)
+      .map((r) => r.content);
 
-  return context;
+    return context;
+  } catch (err) {
+    console.warn("retrieveContext failed:", err);
+    return [];
+  }
 };
