@@ -15,10 +15,10 @@ export default function DashboardLayout({
   return (
     <>
       <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
-      <div className="flex-1 flex flex-col min-w-0 md:ml-64 transition-all duration-300 min-h-screen bg-[#030712]">
+      <div className="flex-1 flex flex-col min-w-0 md:ml-64 transition-all duration-300">
         <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
-        <main className="flex-1 relative z-0 flex flex-col">
-          <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 flex flex-col">
+        <main className="flex-1 relative z-0 mb-20 md:mb-0">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {children}
           </div>
         </main>
@@ -26,5 +26,3 @@ export default function DashboardLayout({
     </>
   );
 }
-
-

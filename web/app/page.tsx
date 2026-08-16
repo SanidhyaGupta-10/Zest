@@ -1,193 +1,179 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
-import { 
-  Plus, 
-  ChevronDown, 
-  Mic, 
-  AudioWaveform, 
-  GraduationCap, 
-  Code2, 
-  PenTool, 
-  Coffee, 
-  Lightbulb,
-  Sparkles,
-  Send,
-  Zap
-} from "lucide-react";
+import Link from "next/link";
 import { motion } from "framer-motion";
+import { MessageSquare, BookOpen, FileText, HelpCircle, ArrowRight, Sparkles } from "lucide-react";
 
 export default function Home() {
-  const { user } = useUser();
-  const router = useRouter();
-  const [prompt, setPrompt] = useState("");
-  const [selectedModel, setSelectedModel] = useState("Sonnet 5 Max");
-  const [showModelMenu, setShowModelMenu] = useState(false);
-  const [greeting, setGreeting] = useState("Sunday session");
-
-  useEffect(() => {
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const currentDay = days[new Date().getDay()];
-    const firstName = user?.firstName || user?.username || "Sanidhya";
-    setGreeting(`${currentDay} session, ${firstName}?`);
-  }, [user]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!prompt.trim()) return;
-    router.push(`/chat?q=${encodeURIComponent(prompt)}`);
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
   };
 
-  const handlePillClick = (pillText: string) => {
-    const defaultPrompts: Record<string, string> = {
-      "Learn": "Teach me a complex concept in plain English with an interactive mental model.",
-      "Code": "Help me write high-performance TypeScript and debug tricky async issues.",
-      "Write": "Help me draft a clear, persuasive document or technical blog post.",
-      "Life stuff": "Give me thoughtful perspective and practical organization tips for my week.",
-      "Zest's choice": "Surprise me with a fascinating insight or breakdown of cutting-edge tech."
-    };
-    const query = defaultPrompts[pillText] || pillText;
-    router.push(`/chat?q=${encodeURIComponent(query)}`);
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.5 },
+    },
   };
+
+  const features = [
+    {
+      title: "AI Chat",
+      description: "Intelligent conversations with your notes using advanced RAG models.",
+      icon: MessageSquare,
+      href: "/chat",
+      color: "from-blue-500 to-cyan-400",
+    },
+    {
+      title: "Smart Notes",
+      description: "Upload, process, and organize your knowledge with AI precision.",
+      icon: BookOpen,
+      href: "/notes",
+      color: "from-purple-500 to-pink-400",
+    },
+    {
+      title: "Instant Summary",
+      description: "Extract core insights from lengthy documents in seconds.",
+      icon: FileText,
+      href: "/summary",
+      color: "from-orange-500 to-amber-400",
+    },
+    {
+      title: "Quiz Generator",
+      description: "Master any subject with AI-generated practice questions.",
+      icon: HelpCircle,
+      href: "/questions",
+      color: "from-emerald-500 to-teal-400",
+    },
+  ];
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center min-h-[calc(100vh-120px)] py-8 px-4 text-[#f8fafc]">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+    <div className="relative pt-10 pb-20">
+      {/* Hero Section */}
+      <motion.section 
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-2xl mx-auto flex flex-col items-center"
+        transition={{ duration: 0.8 }}
+        className="text-center max-w-4xl mx-auto mb-32"
       >
-        {/* Glowing Sparkle / Logo Icon + Dynamic Greeting */}
-        <div className="flex items-center justify-center gap-3.5 mb-8 text-center">
-          <div className="relative flex items-center justify-center size-10 rounded-2xl bg-gradient-to-tr from-cyan-500/20 via-blue-500/20 to-purple-500/20 border border-cyan-500/30 shadow-[0_0_25px_rgba(6,182,212,0.3)]">
-            <Sparkles className="size-5 text-cyan-400 animate-pulse" />
-          </div>
-
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-            {greeting}
-          </h1>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+          </span>
+          <span className="text-xs font-bold tracking-wider text-white/50 uppercase">New: GPT-4o Integration</span>
         </div>
 
-        {/* Central Floating Black Glass Prompt Card */}
-        <form onSubmit={handleSubmit} className="w-full mb-6">
-          <div className="glass-prompt-box p-4 md:p-5 flex flex-col justify-between min-h-[150px] relative">
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit(e);
-                }
-              }}
-              placeholder="Message Zest AI or type / for skills..."
-              rows={3}
-              className="w-full bg-transparent text-[#f8fafc] placeholder-gray-500 text-base focus:outline-none resize-none font-sans"
-            />
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-8 tracking-tighter leading-[0.9] text-white">
+          Architect your <br />
+          <span className="bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            Knowledge
+          </span>
+        </h1>
+        
+        <p className="text-lg md:text-xl text-gray-400 mb-12 leading-relaxed max-w-2xl mx-auto font-medium">
+          The premium AI workspace for creators and researchers. Organize, 
+          summarize, and interact with your data like never before.
+        </p>
 
-            {/* Inner Bottom Controls Row */}
-            <div className="flex items-center justify-between pt-3 border-t border-white/[0.06]">
-              {/* Left Attachment Icon */}
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
-                  title="Add attachments or context"
-                >
-                  <Plus className="size-5" />
-                </button>
-              </div>
-
-              {/* Right Action Controls */}
-              <div className="flex items-center gap-2 relative">
-                {/* Model selector dropdown pill */}
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setShowModelMenu(!showModelMenu)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-gray-300 hover:text-white hover:bg-white/[0.08] hover:border-cyan-500/30 transition-all font-semibold cursor-pointer"
-                  >
-                    <span className="text-cyan-400">●</span>
-                    <span>{selectedModel}</span>
-                    <ChevronDown className="size-3 text-gray-400" />
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  {showModelMenu && (
-                    <div className="absolute right-0 bottom-full mb-2 w-52 bg-[#0b1329]/95 backdrop-blur-2xl border border-white/10 rounded-2xl shadow-2xl z-50 py-1 text-xs">
-                      {["Sonnet 5 Max", "GPT-4o Turbo", "Gemini 1.5 Pro", "Claude 3.7 Sonnet"].map((model) => (
-                        <button
-                          key={model}
-                          type="button"
-                          onClick={() => {
-                            setSelectedModel(model);
-                            setShowModelMenu(false);
-                          }}
-                          className="w-full text-left px-3.5 py-2 text-gray-300 hover:bg-white/10 hover:text-white transition-colors flex items-center justify-between font-medium"
-                        >
-                          <span>{model}</span>
-                          {selectedModel === model && <span className="text-cyan-400 font-bold">✓</span>}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Microphone Icon */}
-                <button
-                  type="button"
-                  className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
-                  title="Voice input"
-                >
-                  <Mic className="size-4" />
-                </button>
-
-                {/* Audio Waveform Icon */}
-                <button
-                  type="button"
-                  className="p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
-                  title="Audio mode"
-                >
-                  <AudioWaveform className="size-4" />
-                </button>
-
-                {/* Send Button */}
-                <button
-                  type="submit"
-                  disabled={!prompt.trim()}
-                  className="p-2 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] disabled:opacity-30 disabled:hover:shadow-none transition-all cursor-pointer"
-                >
-                  <Send className="size-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </form>
-
-        {/* Action Quick-Pill Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-2 max-w-full">
-          {[
-            { label: "Learn", icon: GraduationCap },
-            { label: "Code", icon: Code2 },
-            { label: "Write", icon: PenTool },
-            { label: "Life stuff", icon: Coffee },
-            { label: "Zest's choice", icon: Lightbulb },
-          ].map((pill) => (
-            <button
-              key={pill.label}
-              onClick={() => handlePillClick(pill.label)}
-              className="glass-pill"
-            >
-              <pill.icon className="size-3.5 text-cyan-400" />
-              <span>{pill.label}</span>
-            </button>
-          ))}
+        <div className="flex flex-wrap justify-center gap-6">
+          <Link href="/chat" className="btn-primary py-4 px-8 text-lg group">
+            Start Creating
+            <ArrowRight className="size-5 group-hover:translate-x-1 transition-transform" />
+          </Link>
+          <Link href="/notes" className="btn-glass py-4 px-8 text-lg">
+            Upload Data
+          </Link>
         </div>
+      </motion.section>
+
+      {/* Stats/Social Proof */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-5xl mx-auto mb-32 text-center"
+      >
+        {[
+          { label: "Active Users", value: "20k+" },
+          { label: "Notes Processed", value: "1.2M" },
+          { label: "AI Queries", value: "500k" },
+          { label: "Accuracy", value: "99.9%" },
+        ].map((stat, i) => (
+          <div key={i} className="space-y-1">
+            <div className="text-3xl font-black text-white">{stat.value}</div>
+            <div className="text-sm font-bold text-white/30 uppercase tracking-widest">{stat.label}</div>
+          </div>
+        ))}
       </motion.div>
+
+      {/* Features Grid */}
+      <motion.section 
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto mb-32"
+      >
+        {features.map((feature) => (
+          <motion.div
+            key={feature.title}
+            variants={itemVariants}
+            className="group"
+          >
+            <Link 
+              href={feature.href}
+              className="glass-card p-10 block relative h-full overflow-hidden"
+            >
+              <div className={`absolute top-0 right-0 w-32 h-32 bg-linear-to-br ${feature.color} opacity-0 group-hover:opacity-10 blur-3xl transition-opacity duration-500`} />
+              
+              <div className="p-4 rounded-2xl bg-white/5 w-fit mb-8 group-hover:scale-110 transition-transform duration-500 relative">
+                <feature.icon className="size-8 text-white" />
+                <div className={`absolute inset-0 bg-linear-to-br ${feature.color} opacity-20 blur-xl`} />
+              </div>
+
+              <h3 className="text-2xl font-black mb-4 group-hover:text-blue-400 transition-colors">{feature.title}</h3>
+              <p className="text-gray-400 font-medium leading-relaxed mb-8">
+                {feature.description}
+              </p>
+
+              <div className="flex items-center text-sm font-bold text-white/30 group-hover:text-white transition-all uppercase tracking-widest">
+                Explore <ArrowRight className="size-4 ml-2 group-hover:translate-x-2 transition-transform" />
+              </div>
+            </Link>
+          </motion.div>
+        ))}
+      </motion.section>
+
+      {/* CTA Section */}
+      <motion.section 
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        className="glass-card p-12 md:p-20 text-center max-w-6xl mx-auto overflow-hidden relative"
+      >
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-linear-to-b from-blue-500/10 via-transparent to-transparent pointer-events-none" />
+        <Sparkles className="size-12 text-blue-400 mx-auto mb-8 animate-pulse" />
+        <h2 className="text-4xl md:text-6xl font-black mb-8 tracking-tighter">
+          Ready to scale your <br />
+          learning curve?
+        </h2>
+        <p className="text-gray-400 font-medium mb-12 max-w-xl mx-auto">
+          Join thousands of researchers and students who are already using Zest 
+          to supercharge their knowledge management.
+        </p>
+        <Link href="/notes" className="btn-primary py-5 px-12 text-xl font-bold">
+          Get Started Now
+        </Link>
+      </motion.section>
     </div>
   );
 }
-

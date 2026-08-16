@@ -2,51 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  Plus, 
-  MessageSquare, 
-  FolderKanban, 
-  Sparkles, 
-  Code2, 
-  SlidersHorizontal, 
-  Palette, 
-  Search, 
-  PanelLeftClose, 
-  Sliders, 
-  Settings, 
-  User, 
-  X, 
-  Github, 
-  Instagram, 
-  Mail,
-  Zap,
-  BookOpen,
-  FileText,
-  HelpCircle
-} from "lucide-react";
+import { MessageSquare, BookOpen, FileText, HelpCircle, LayoutDashboard, Settings, User, X, History, Github, Instagram, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
-const mainNavItems = [
-  { name: "Chats", href: "/chat", icon: MessageSquare },
-  { name: "Projects", href: "/notes", icon: FolderKanban },
-  { name: "Artifacts", href: "/history", icon: Sparkles },
-  { name: "Code", href: "/summary", icon: Code2, badge: "PRO" },
-  { name: "Customize", href: "/settings", icon: SlidersHorizontal },
-];
-
-const productItems = [
-  { name: "Design Studio", href: "/questions", icon: Palette },
-];
-
-const recentChats = [
-  { id: "1", title: "Mastering narrations and voice ...", href: "/chat" },
-  { id: "2", title: "Programming languages for AI er...", href: "/chat" },
-  { id: "3", title: "Dark theme PDF conversion", href: "/chat" },
-  { id: "4", title: "Migrating from Python to JavaS...", href: "/chat" },
-  { id: "5", title: "Production Redis and BullMQ ha...", href: "/chat" },
-  { id: "6", title: "Update dev profile with persona...", href: "/chat" },
+const menuItems = [
+  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Chat", href: "/chat", icon: MessageSquare },
+  { name: "History", href: "/history", icon: History },
+  { name: "Notes", href: "/notes", icon: BookOpen },
+  { name: "Summary", href: "/summary", icon: FileText },
+  { name: "Questions", href: "/questions", icon: HelpCircle },
 ];
 
 export default function Sidebar(
@@ -55,168 +22,134 @@ export default function Sidebar(
   const pathname = usePathname();
   const [showContact, setShowContact] = useState(false);
 
+  // Close sidebar on path change (mobile)
   useEffect(() => {
     if (setIsOpen) setIsOpen(false);
   }, [pathname, setIsOpen]);
 
+  const isContactActive = showContact;
+
   const SidebarContent = (
-    <div className="h-full flex flex-col pt-4 pb-4 px-3 bg-[#050814]/80 backdrop-blur-2xl text-gray-300 font-sans">
-      {/* Header Logo & Actions */}
-      <div className="flex items-center justify-between px-2 py-2 mb-3">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="size-7 rounded-xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.5)] group-hover:scale-105 transition-transform">
-            <Zap className="size-4 text-white fill-white" />
-          </div>
-          <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-            ZEST AI
-          </span>
-        </Link>
-        <div className="flex items-center gap-1 text-gray-400">
-          <button className="p-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-colors">
-            <Search className="size-4" />
-          </button>
-          <button 
-            onClick={() => setIsOpen?.(false)}
-            className="p-1.5 rounded-lg hover:bg-white/10 hover:text-white transition-colors"
-          >
-            <PanelLeftClose className="size-4" />
-          </button>
-        </div>
-      </div>
+    <div className="h-full flex flex-col pt-24 pb-6 px-4">
+      <div className="flex-1 space-y-1.5 overflow-y-auto pr-2">
+        {menuItems.map((item) => {
+          const isActive = pathname === item.href && !showContact;
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              onClick={() => setShowContact(false)}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative",
+                isActive
+                  ? "bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
+              )}
+            >
+              <item.icon className={cn(
+                "size-5 transition-transform duration-300",
+                isActive ? "text-blue-400 scale-110" : "group-hover:text-blue-400 group-hover:scale-110"
+              )} />
+              <span className="font-bold tracking-tight text-sm uppercase">{item.name}</span>
 
-      {/* New Chat Button */}
-      <Link
-        href="/chat"
-        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-white font-semibold bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 border border-cyan-500/30 hover:border-cyan-400/60 shadow-[0_0_20px_rgba(6,182,212,0.15)] transition-all mb-5 group active:scale-95 text-sm"
-      >
-        <Plus className="size-4 text-cyan-400 group-hover:rotate-90 transition-transform duration-300" />
-        <span>New chat</span>
-      </Link>
+              {isActive && (
+                <>
+                  <motion.div
+                    layoutId="active-nav"
+                    className="absolute inset-0 rounded-xl bg-linear-to-r from-blue-500/10 via-transparent to-transparent pointer-events-none"
+                  />
+                  <div className="ml-auto size-2 rounded-full bg-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.8)]" />
+                </>
+              )}
+            </Link>
+          );
+        })}
 
-      {/* Navigation */}
-      <div className="flex-1 space-y-6 overflow-y-auto pr-1">
-        {/* Main Nav */}
-        <div className="space-y-1">
-          {mainNavItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all relative group",
-                  isActive
-                    ? "bg-white/[0.08] text-white font-semibold border border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]"
-                    : "text-gray-400 hover:text-white hover:bg-white/[0.04]"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <item.icon className={cn(
-                    "size-4.5 transition-colors", 
-                    isActive ? "text-cyan-400" : "text-gray-400 group-hover:text-cyan-300"
-                  )} />
-                  <span>{item.name}</span>
-                </div>
-                {item.badge && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold">
-                    {item.badge}
-                  </span>
-                )}
-                {isActive && (
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-cyan-400 rounded-l-full shadow-[0_0_10px_#06b6d4]" />
-                )}
-              </Link>
-            );
-          })}
+        {/* Contact Me Tab */}
+        <button
+          onClick={() => setShowContact(!showContact)}
+          className={cn(
+            "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative",
+            isContactActive
+              ? "bg-white/10 text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
+              : "text-gray-400 hover:text-white hover:bg-white/5"
+          )}
+        >
+          <Mail className={cn(
+            "size-5 transition-transform duration-300",
+            isContactActive ? "text-blue-400 scale-110" : "group-hover:text-blue-400 group-hover:scale-110"
+          )} />
+          <span className="font-bold tracking-tight text-sm uppercase">Contact Me</span>
 
-          {/* Contact Toggle */}
-          <button
-            onClick={() => setShowContact(!showContact)}
-            className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/[0.04] transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <Mail className="size-4.5 text-gray-400 group-hover:text-purple-400 transition-colors" />
-              <span>Developer Contact</span>
-            </div>
-          </button>
-        </div>
+          {isContactActive && (
+            <>
+              <motion.div
+                layoutId="active-nav"
+                className="absolute inset-0 rounded-xl bg-linear-to-r from-blue-500/10 via-transparent to-transparent pointer-events-none"
+              />
+              <div className="ml-auto size-2 rounded-full bg-blue-400 shadow-[0_0_12px_rgba(59,130,246,0.8)]" />
+            </>
+          )}
+        </button>
 
-        {/* Contact Links Drawer */}
+        {/* Contact Section - Shows when contact tab is active */}
         <AnimatePresence>
           {showContact && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden space-y-1 pl-3"
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
             >
-              <a
-                href="https://github.com/SanidhyaGupta-10"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-gray-300 hover:text-white hover:bg-white/10 transition-colors border border-white/5"
-              >
-                <Github className="size-4 text-cyan-400" />
-                <span>GitHub @SanidhyaGupta-10</span>
-              </a>
-              <a
-                href="https://www.instagram.com/sanidhyagupta10/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-gray-300 hover:text-white hover:bg-white/10 transition-colors border border-white/5"
-              >
-                <Instagram className="size-4 text-purple-400" />
-                <span>Instagram @sanidhyagupta10</span>
-              </a>
+              <div className="mt-2 mb-4 p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-3">Get in Touch</p>
+                <a
+                  href="https://github.com/SanidhyaGupta-10"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 group/link"
+                >
+                  <div className="flex items-center justify-center size-8 rounded-lg bg-gray-800 group-hover/link:bg-gray-700 transition-colors">
+                    <Github className="size-4" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">GitHub</span>
+                    <span className="text-xs text-gray-500">@SanidhyaGupta-10</span>
+                  </div>
+                </a>
+                <a
+                  href="https://www.instagram.com/sanidhyagupta10/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 group/link"
+                >
+                  <div className="flex items-center justify-center size-8 rounded-lg bg-linear-to-br from-purple-600 via-pink-500 to-orange-400">
+                    <Instagram className="size-4 text-white" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">Instagram</span>
+                    <span className="text-xs text-gray-500">@sanidhyagupta10</span>
+                  </div>
+                </a>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Products Section */}
-        <div>
-          <div className="px-3 pb-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-            Products
-          </div>
-          <div className="space-y-1">
-            {productItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-gray-400 hover:text-white hover:bg-white/[0.04] transition-all group"
-              >
-                <item.icon className="size-4 text-gray-400 group-hover:text-purple-400" />
-                <span>{item.name}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Recents Section */}
-        <div>
-          <div className="flex items-center justify-between px-3 pb-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-            <span>Recents</span>
-            <Sliders className="size-3 text-gray-500 hover:text-white cursor-pointer" />
-          </div>
-          <div className="space-y-1">
-            {recentChats.map((chat) => (
-              <Link
-                key={chat.id}
-                href={chat.href}
-                className="block px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-cyan-300 hover:bg-white/[0.04] transition-colors truncate"
-              >
-                {chat.title}
-              </Link>
-            ))}
-          </div>
-        </div>
       </div>
 
-      {/* Footer Settings */}
-      <div className="pt-3 border-t border-white/10 mt-auto flex items-center justify-between px-2 text-xs text-gray-400">
-        <Link href="/settings" className="flex items-center gap-2 p-1.5 hover:text-white rounded-lg transition-colors">
-          <Settings className="size-4 text-gray-400" />
-          <span>Settings</span>
+      <div className="pt-6 space-y-1.5 border-t border-white/5 mt-auto">
+        <Link
+          href="/settings"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400/60 hover:text-white hover:bg-white/5 transition-all duration-200 group"
+        >
+          <Settings className="size-5 group-hover:rotate-90 transition-transform duration-500" />
+          <span className="font-bold text-xs uppercase tracking-widest">Settings</span>
         </Link>
+        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400/60 hover:text-white hover:bg-white/5 transition-all duration-200 group">
+          <User className="size-5" />
+          <span className="font-bold text-xs uppercase tracking-widest">Account</span>
+        </button>
       </div>
     </div>
   );
@@ -224,7 +157,8 @@ export default function Sidebar(
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 h-screen fixed left-0 top-0 border-r border-white/10 bg-[#050814]/90 backdrop-blur-2xl z-40 flex-col shadow-2xl overflow-hidden">
+      <aside className="hidden md:flex w-64 h-screen fixed left-0 top-0 border-r border-white/5 bg-black/40 backdrop-blur-2xl z-40 flex-col shadow-2xl overflow-hidden ring-1 ring-white/5">
+        <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-blue-500 via-transparent to-transparent" />
         {SidebarContent}
       </aside>
 
@@ -237,20 +171,20 @@ export default function Sidebar(
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen?.(false)}
-              className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 md:hidden"
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 md:hidden"
             />
             <motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 220 }}
-              className="fixed left-0 top-0 w-72 h-screen bg-[#050814] border-r border-white/10 z-60 md:hidden shadow-2xl"
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed left-0 top-0 w-72 h-screen bg-slate-950 border-r border-white/10 z-60 md:hidden shadow-2xl"
             >
               <button
                 onClick={() => setIsOpen?.(false)}
-                className="absolute top-4 right-4 p-1.5 rounded-xl bg-white/10 text-gray-400 hover:text-white"
+                className="absolute top-6 right-6 p-2 rounded-xl bg-white/5 border border-white/10"
               >
-                <X className="size-4" />
+                <X className="size-5 text-white/50" />
               </button>
               {SidebarContent}
             </motion.aside>
@@ -260,5 +194,3 @@ export default function Sidebar(
     </>
   );
 }
-
-

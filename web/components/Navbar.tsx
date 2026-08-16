@@ -1,77 +1,64 @@
 "use client";
 
 import Link from "next/link";
-import { SignInButton, SignUpButton, UserButton, useAuth, useUser } from "@clerk/nextjs";
-import { Loader2, PanelLeftOpen, Sparkles } from "lucide-react";
+import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
+import { Loader2, Menu } from "lucide-react";
 import { useUserSync } from "@/hooks/useUserSync";
 
 function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { isLoaded, isSignedIn } = useAuth();
-  const { user } = useUser();
   const { isPending: isSyncing } = useUserSync();
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-[#030712]/70 backdrop-blur-xl border-b border-white/[0.08]">
-      <div className="mx-auto w-full px-4 py-2.5">
-        <div className="flex h-10 items-center justify-between px-2">
-          {/* Mobile Menu Toggle */}
-          <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-30 w-full">
+      <div className="mx-auto w-full px-4 py-4">
+        <div className="glass-card flex h-14 items-center justify-between px-6 border-white/5 bg-white/[0.02]">
+          <div className="flex items-center gap-4">
             <button 
               onClick={onMenuClick}
-              className="md:hidden p-1.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+              className="md:hidden p-2 rounded-xl bg-white/5 border border-white/5 text-white/50 hover:text-white transition-colors"
             >
-              <PanelLeftOpen className="size-5" />
+              <Menu className="size-5" />
             </button>
-          </div>
-
-          {/* Center Plan Banner */}
-          <div className="flex items-center gap-2 text-xs font-semibold">
-            <span className="px-2.5 py-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center gap-1.5 shadow-[0_0_12px_rgba(6,182,212,0.15)]">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+            <Link href="/" className="flex items-center gap-2 group">
+              <span className="text-xl font-black tracking-tighter bg-linear-to-r from-white via-white to-white/40 bg-clip-text text-transparent group-hover:to-white transition-all">
+                ZEST
               </span>
-              ZEST PRO ACTIVE
-            </span>
-            <Link 
-              href="/settings" 
-              className="text-gray-400 hover:text-cyan-300 text-xs font-medium transition-colors hidden sm:inline"
-            >
-              Manage Plan
             </Link>
           </div>
 
-          {/* User Status & Avatar */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {!isLoaded ? (
-              <div className="size-7 rounded-full bg-white/10 animate-pulse" />
+              <div className="size-8 rounded-full bg-white/5 animate-pulse" />
             ) : isSignedIn ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4">
                 {isSyncing && (
-                  <div className="flex items-center gap-1 text-[10px] text-cyan-400 font-semibold">
-                    <Loader2 className="size-3 animate-spin text-cyan-400" />
+                  <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-white/30 font-bold">
+                    <Loader2 className="size-3 animate-spin" />
+                    <span>Syncing</span>
                   </div>
                 )}
+                <div className="h-6 w-px bg-white/10 mx-1" />
                 <UserButton 
                   afterSwitchSessionUrl="/"
                   appearance={{
                     elements: {
-                      userButtonAvatarBox: "size-7 rounded-full border border-cyan-500/40 hover:border-cyan-400 transition-colors shadow-[0_0_10px_rgba(6,182,212,0.3)]"
+                      userButtonAvatarBox: "size-8 rounded-lg border border-white/10 hover:border-white/20 transition-colors"
                     }
                   }}
                 />
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <SignInButton mode="modal">
-                  <button className="text-xs text-gray-300 hover:text-white transition-colors">
-                    Log in
+                  <button className="text-sm font-medium text-white/50 hover:text-white transition-colors">
+                    Login
                   </button>
                 </SignInButton>
                 
                 <SignUpButton mode="modal">
-                  <button className="btn-glass-primary text-xs py-1.5 px-3.5">
-                    Sign up
+                  <button className="btn-primary text-xs py-2 px-4">
+                    Get Started
                   </button>
                 </SignUpButton>
               </div>
@@ -84,5 +71,3 @@ function Navbar({ onMenuClick }: { onMenuClick?: () => void }) {
 }
 
 export default Navbar;
-
-
