@@ -5,8 +5,8 @@ import { Providers } from "@/components/Provider";
 import DashboardLayout from "@/components/DashboardLayout";
 
 export const metadata: Metadata = {
-  title: "Zest AI — Premium Knowledge Assistant",
-  description: "Experience the next generation of AI productivity with Zest.",
+  title: "Zest AI — Premium Knowledge & AI Workspace",
+  description: "Experience next-generation black glassmorphism AI productivity with Zest.",
 };
 
 export default function RootLayout({
@@ -21,27 +21,26 @@ export default function RootLayout({
         lang="en"
         className="h-full antialiased dark"
       >
-          <body
-            suppressHydrationWarning
-            className="min-h-full bg-slate-950 flex font-sans"
-          >
-            <Providers>
-              {/* Background elements */}
-              <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-                {/* Radial glows */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-blue-500/10 blur-[120px] rounded-full opacity-50" />
-                <div className="absolute top-[20%] right-[10%] w-[400px] h-[400px] bg-purple-600/10 blur-[100px] rounded-full opacity-30 animate-pulse" />
-                
-                {/* Grid overlay */}
-                <div className="absolute inset-x-0 top-0 h-full w-full bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_top,black,transparent_80%)]" />
-              </div>
+        <body
+          suppressHydrationWarning
+          className="min-h-full bg-[#030712] text-[#f8fafc] flex font-sans relative overflow-x-hidden selection:bg-cyan-500/30 selection:text-white"
+        >
+          <Providers>
+            {/* Black Glassmorphism Ambient Glows */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+              <div className="absolute top-0 left-1/4 -translate-x-1/2 w-[700px] h-[500px] bg-cyan-500/10 blur-[140px] rounded-full opacity-60" />
+              <div className="absolute top-1/3 right-10 w-[600px] h-[500px] bg-purple-600/10 blur-[160px] rounded-full opacity-40" />
+              <div className="absolute bottom-10 left-1/3 w-[500px] h-[400px] bg-blue-600/10 blur-[130px] rounded-full opacity-30" />
+            </div>
 
-              <DashboardLayout>
-                {children}
-              </DashboardLayout>
-            </Providers>
-          </body>
+            <DashboardLayout>
+              {children}
+            </DashboardLayout>
+          </Providers>
+        </body>
       </html>
     </ClerkProvider>
   );
 }
+
+
