@@ -3,6 +3,8 @@
 
   # 🍋 Zest: The Ultimate AI Productivity Engine
 
+  > **🚀 Heads up: We are currently building Version 2 (V2)! Stay tuned for it!**
+
   **Zest** is a high-performance, AI-powered application designed for lightning-fast task processing. Built with a robust decentralized architecture, Zest handles intensive AI operations asynchronously to ensure a seamless, non-blocking user experience. 
 
   <img src="assets/zest_tech_stack_icons_1775024158830.png" alt="Zest Tech Stack" width="80%" />
@@ -64,30 +66,10 @@ The Next.js 14 App Router application. Features the glassmorphic, responsive Tai
 
 1. **Clone & Install Dependencies**
 ```bash
-git clone https://github.com/your-username/zest.git
+git clone [https://github.com/your-username/zest.git](https://github.com/your-username/zest.git)
 cd zest
 
 # Install server dependencies
 cd server && npm install
 # Install web dependencies
 cd ../web && npm install
-```
-
-2. **Configure Environments**
-Copy the respective `.env.example` files in both `/server` and `/web` to `.env` and fill in your keys.
-
-3. **Run Development Mode (Concurrently)**
-Open two terminals.
-```bash
-# Terminal 1: Run the API and Worker engine
-cd server
-npm run dev
-
-# Terminal 2: Run the frontend Next.js app
-cd web
-npm run dev
-```
-
----
-
-*Zest – Adding zest to your productivity with smart AI queues.*
